@@ -1,0 +1,25 @@
+{%  extends 'layouts/base.html' %}
+{% block title %}
+{% load humanize %}
+    {{authority.name}}-{{super.block}}
+    {% endblock %}
+    {% block content %}
+    <h1>{{authority.name}}</h1>
+    <p>{{authority.description}}</p>
+    <p>{{no_of_resolved_feed_per_authority}}/{{no_of_feed_per_authority}} Feed{{no_of_feed_per_authority|pluralize:'s'}} resolved</p>
+    <h3>Feeds against {{authority.name}} </h3>
+    {% for feed in authority_feeds %}
+           <strong> {{feed.full_name_of_poster|title}} </strong>  |
+            {% if feed.resolved == True %}  
+           RESOLVED 
+            {% else %}
+            UNRESOLVED 
+            {% endif %} 
+                  
+           <p>{{feed.text|linebreaks}} </p>
+          <p> {{feed.total_concerns}} concern{{feed.total_concerns|pluralize:'s'}}</p>
+           <p> {{feed.pub_date|naturaltime|capfirst}} </p>
+           {% endfor %}
+      {% endblock %}
+      {% block footer %}
+      {% endblock %}

@@ -1,0 +1,11 @@
+
+{% load staticfiles %}
+
+
+    <h2>Post a Feed</h2>
+    <form role="form" action="{% url 'post_feed' %}" enctype="multipart/form-data" method="post">
+    {% csrf_token %}
+    {{form.as_p}}
+    
+    <input type="Submit" value= "Submit" />
+    </form>

@@ -1,0 +1,52 @@
+{%  extends 'layouts/base.html' %}
+
+{% load humanize %}
+{% load staticfiles %}
+{% block title %}
+    Stream-{{block.super}}
+    {% endblock %}
+    {% block content %}
+    {% include "post_feed.html" %}
+    <h2>Feed Stream</h2>
+    {% for feed in feeds %}
+       <strong> {{feed.full_name_of_poster|title}} </strong>  |
+            {% if feed.resolved == True %}  
+           RESOLVED 
+            {% else %}
+            UNRESOLVED 
+            {% endif %}
+           <p> To:<a href="{% url 'authority_details' pk=feed.auth.pk %}">{{feed.auth}} </a></p> 
+                  
+           <p>{{feed.text|linebreaks}} </p>
+          <p> {{feed.total_concerns}} concern{{feed.total_concerns|pluralize:'s'}}</p>
+           <p> {{feed.pub_date|naturaltime|capfirst}} </p>
+           <a href="{% url 'feed_detail' slug=feed.slug %}">Full details</a>
+          
+           <input type="button" id="like" name="{{feed.slug}}" value="Like" />
+
+<script>
+
+$('#like').click(function(){
+       
+      $.ajax({
+               
+               type: "POST",
+               url: "{% url 'like' %}",
+               data: {'slug': '{{feed.slug}}' , 'csrfmiddlewaretoken': '{{ csrf_token }}'},
+               dataType: "json",
+               success: function(response) {
+                      alert(response.message);
+                      alert('Company likes count is now ' + response.likes_count);
+                },
+                error: function(rs, e) {
+                       alert(rs.responseText);
+                }
+          }); 
+    })
+
+</script>
+           
+           {% endfor %}
+      {% endblock %}
+      {% block footer %}
+      {% endblock %}

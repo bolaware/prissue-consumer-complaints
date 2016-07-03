@@ -1,0 +1,48 @@
+{%  extends 'layouts/base.html' %}
+{% block title %}
+{% load humanize %}
+    Feed-{{block.super}}
+    {% endblock %}
+    {% block content %}
+    <h3>{{feed_detail.full_name_of_poster|title}}</h3> 
+    {% if feed_detail.resolved == True %}  
+           RESOLVED 
+            {% else %}
+            UNRESOLVED 
+            {% endif %}
+            <p> To:<a href="{% url 'authority_details' pk=feed_detail.auth.pk %}">{{feed_detail.auth}} </a></p> 
+                  
+           <p>{{feed_detail.text|linebreaks}} </p>
+          <p> {{feed_detail.total_concerns}} concern{{feed_detail.total_concerns|pluralize:'s'}}</p>
+           <p> {{feed_detail.pub_date|naturaltime|capfirst}} </p>
+                    <input type="button" id="like" name="{{feed_detail.slug}}" value="Like" />
+
+<script>
+
+$('#like').click(function(){
+       
+      $.ajax({
+               
+               type: "POST",
+               url: "{% url 'like' %}",
+               data: {'slug': '{{feed_detail.slug}}' , 'csrfmiddlewaretoken': '{{ csrf_token }}'},
+               dataType: "json",
+               success: function(response) {
+                      alert(response.message);
+                      alert('Company likes count is now ' + response.likes_count);
+                },
+                error: function(rs, e) {
+                       alert(rs.responseText);
+                }
+          }); 
+    })
+
+</script>
+           {{feed_detail.files}}
+     {% endblock %}
+     {% block footer %}
+      {% endblock %}
+    
+    
+   
+      

@@ -1,0 +1,14 @@
+{%  extends 'layouts/base.html' %}
+{% block title %}
+{% load humanize %}
+    Authority with highest corruption feed-{{super.block}}
+    {% endblock %}
+    {% block content %}
+    {% for a in auth_with_highest_feeds %}
+   <strong>{{forloop.counter}}. <a href="{% url 'authority_details' pk=a.pk %}">{{a.name}} </a></strong> 
+           <p> {{a.total_feeds}} corruption feed{{a.total_feeds|pluralize:'s'}} </p>
+           <p> {{a.description|linebreaks}} </p>
+           {% endfor %}
+      {% endblock %}
+      {% block footer %}
+      {% endblock %}

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<meta charset="UTF-8">
+{% load staticfiles %}
+<html>
+  <head>
+    <title>
+    {% block title %}
+     CorruptionFeed Nigeria
+    {% endblock %}
+    </title>
+  </head>
+  <body>
+  
+  <li><a href="{% url 'home' %}">Home</a></li>
+  <li><a href="{% url 'authority_highest_feed' %}">Authority with Highest Feeds</a></li>
+  <li><a href="{% url 'highest_concerned_feeds' %}">Concerned Feeds</a></li>
+  
+ 
+      {% block content %}
+      {% endblock %}
+      {% block footer %}
+      {% endblock %}
+    
+  </body>
+</html>

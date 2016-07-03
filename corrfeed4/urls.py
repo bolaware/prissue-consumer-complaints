@@ -1,0 +1,32 @@
+"""corrfeed4 URL Configuration
+
+The `urlpatterns` list routes URLs to views. For more information please see:
+    https://docs.djangoproject.com/en/1.9/topics/http/urls/
+Examples:
+Function views
+    1. Add an import:  from my_app import views
+    2. Add a URL to urlpatterns:  url(r'^$', views.home, name='home')
+Class-based views
+    1. Add an import:  from other_app.views import Home
+    2. Add a URL to urlpatterns:  url(r'^$', Home.as_view(), name='home')
+Including another URLconf
+    1. Import the include() function: from django.conf.urls import url, include
+    2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
+"""
+from django.conf.urls import url,include
+from django.contrib import admin
+from corrfeed import views
+
+#home_patterns=([,])
+
+urlpatterns = [
+    url(r'^admin/', admin.site.urls),
+    url(r'^$',views.home,name='home'),
+    url(r'^post-feed/$',views.post_feed,name='post_feed'),
+    url(r'^authority/highest-corruption-feed/$',views.authority_highest_feed,name='authority_highest_feed'),
+    url(r'^highest-corruption-feed-concerns/$',views.highest_concerned_feeds,name='highest_concerned_feeds'),
+    url(r'^authority/(?P<pk>\d+)/$',views.authority_details,name='authority_details'),
+    url(r'^feed/(?P<slug>[-\w]+)/$',views.feed_detail,name='feed_detail'),
+    url(r'^like/$', views.like, name='like'),
+   # url(r'^profile/(?P<slug>[-\w]+)/$',views.profile_details,name='profile_details')
+] 

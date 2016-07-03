@@ -1,0 +1,22 @@
+{%  extends 'layouts/base.html' %}
+{% block title %}
+{% load humanize %}
+    Authority with highest corruption feed-{{super.block}}
+    {% endblock %}
+    {% block content %}
+    {% for feed in feed_highest_concerns %}
+   <strong>{{forloop.counter}}. {{feed.full_name_of_poster|title}} </strong>  |
+            {% if feed.resolved == True %}  
+           RESOLVED 
+            {% else %}
+            UNRESOLVED 
+            {% endif %}
+           <p> To:<a href="{% url 'authority_details' pk=feed.auth.pk %}">{{feed.auth}} </a></p> 
+                  
+           <p>{{feed.text|linebreaks}} </p>
+          <p> {{feed.total_concerns}} concern{{feed.total_concerns|pluralize:'s'}}</p>
+           <p> {{feed.pub_date|naturaltime|capfirst}} </p>
+           {% endfor %}
+      {% endblock %}
+      {% block footer %}
+      {% endblock %}
