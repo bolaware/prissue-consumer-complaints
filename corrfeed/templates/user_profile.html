@@ -1,0 +1,69 @@
+{%  extends 'layouts/base.html' %}
+{% block title %}
+{% load humanize %}
+    {{user.username}}-{{block.super}}
+    {% endblock %}
+    {% block header %}
+    <a href="{% url 'home' %}" class="mdl-navigation__link">Stream</a>
+         <a href="{% url 'highest_concerned_feeds' %}" class="mdl-navigation__link">issues</a>
+          <a href="{% url 'authority_highest_feed' %}" class="mdl-navigation__link">Organisations</a>
+          
+      {% endblock %}
+    {% block content %}
+    {% load staticfiles %} 
+
+<div align='center'>
+ <h3 text-align='center'>{{user.first_name}} {{user.last_name}}'s Issues</h3>
+    <p>@{{user.username}}</p></div>
+    <!--<p>Category:{{authority.category}}</p>
+    <p>Country of operation:{{authority.country}}</p>
+    <p>{{no_of_resolved_feed_per_authority}}/{{no_of_feed_per_authority}} Feed{{no_of_feed_per_authority|pluralize:'s'}} resolved</p>-->
+
+{% for feed in feeds %}
+         <section id='post-section' class="section--center mdl-grid mdl-grid--no-spacing mdl-shadow--2dp">
+    
+    <div class="mdl-card mdl-cell mdl-cell--12-col">
+     <div class="mdl-card__supporting-text">
+     
+     <h5>
+        {{feed.full_name_of_poster|title}} | 
+            {% if feed.resolved == True %}  
+         <SPAN id="resolved">RESOLVED </SPAN> 
+            {% else %}
+           <SPAN id="unresolved">UNRESOLVED</SPAN> 
+            {% endif %}</h5><br/>
+            <p> To:<a href="{% url 'authority_details' pk=feed.auth.pk slug=feed.auth.slug %}">{{feed.auth}} </a></p>
+             <p id='text'>{{feed.text}} <a href="{% url 'feed_detail' slug=feed.slug %}">Full details</a></p>
+             <span class="time">{{feed.pub_date|naturaltime|capfirst}}</span><br/>
+             </div>
+           <div class="mdl-card__actions">
+            {{feed.total_concerns}} concern{{feed.total_concerns|pluralize:'s'}} &nbsp {{feed.no_of_comments}} comment{{feed.no_of_comments|pluralize:'s'}} &nbsp {{feed.attachment}} attachment{{feed.attachment|pluralize:'s'}}  <br/>
+           </div>
+            </div>
+            
+            <ul class="mdl-menu mdl-js-menu mdl-menu--bottom-right" for="{{feed.pk}}">
+              <li class="mdl-menu__item">Twitter</li>
+              
+            </ul>
+            </section>
+           {% endfor %}
+           <div class="pagination">
+    <span class="step-links">
+        {% if feedz.has_previous %}
+            <a href="?page={{ feedz.previous_page_number }}">previous</a>
+        {% endif %}
+
+        <span class="current">
+            Page {{ feedz.number }} of {{ feedz.paginator.num_pages }}
+        </span>
+
+        {% if feedz.has_next %}
+            <a href="?page={{ feedz.next_page_number }}">next</a>
+        {% endif %}
+    </span>
+</div>
+
+
+      {% endblock %}
+      {% block footer %}
+      {% endblock %}

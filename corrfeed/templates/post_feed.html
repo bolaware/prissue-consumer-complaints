@@ -1,11 +1,48 @@
 
 {% load staticfiles %}
-
-
-    <h2>Post a Feed</h2>
+   
     <form role="form" action="{% url 'post_feed' %}" enctype="multipart/form-data" method="post">
     {% csrf_token %}
-    {{form.as_p}}
+    <div class="mdl-textfield mdl-js-textfield ">
+    {{form.text}}
+    <label class="mdl-textfield__label" for="{{form.text.id_for_label}}">Cheated by an organization?Blow the whistle here...</label>
+    </div>
+    <div class="mdl-select mdl-js-select mdl-select--floating-label">
+     <label class="mdl-select__label" for="{{form.auth.id_for_label}}">Organization/Authority addressed to:<br/></label>
+    {{form.auth}}&nbsp <a href="{% url 'create-authority' %}">
+              <i class="material-icons">add</i>
+            </a>
+   
+    </div><br/>
+  
+   
+      {{form.files}}
     
-    <input type="Submit" value= "Submit" />
+    
+    
+   <br/> {{form.files2}}
+    <br/>  {{form.files3}}
+     {% if form.errors %}
+    {% for field in form %}
+    {% for error in field.errors %}
+    <div class="alert alert-error">
+   <span id='error'><b> {{error}} </b><span>
+    </div>
+    {% endfor %}
+    {% endfor %}
+    {% endif %}
+   {% for error in form.non_field_errors %}
+    <div class="alert alert-error">
+   <span id='error'><b> {{error}} </b><span>
+    </div>
+     {% endfor %}
+     {% if user.is_authenticated %}
+    
+    <br/> <br/> <button class="mdl-button mdl-js-button  mdl-js-ripple-effect mdl-button--raised mdl-button--colored">Post</button>
+     {% else %}
+    <br/> <br/> <button class="mdl-button mdl-js-button  mdl-js-ripple-effect mdl-button--raised mdl-button--colored" disabled>Login to Post</button> 
+      {% endif %}
     </form>
+    {{ form.media }}
+
+   

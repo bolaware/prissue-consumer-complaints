@@ -1,48 +1,172 @@
+
 {%  extends 'layouts/base.html' %}
-{% block title %}
+{% load staticfiles %}
+{% load account %}
 {% load humanize %}
+{% load social_share %}
+{% load socialaccount %}
+{% block title %}
     Feed-{{block.super}}
     {% endblock %}
-    {% block content %}
-    <h3>{{feed_detail.full_name_of_poster|title}}</h3> 
-    {% if feed_detail.resolved == True %}  
-           RESOLVED 
-            {% else %}
-            UNRESOLVED 
-            {% endif %}
-            <p> To:<a href="{% url 'authority_details' pk=feed_detail.auth.pk %}">{{feed_detail.auth}} </a></p> 
-                  
-           <p>{{feed_detail.text|linebreaks}} </p>
-          <p> {{feed_detail.total_concerns}} concern{{feed_detail.total_concerns|pluralize:'s'}}</p>
-           <p> {{feed_detail.pub_date|naturaltime|capfirst}} </p>
-                    <input type="button" id="like" name="{{feed_detail.slug}}" value="Like" />
-
-<script>
-
-$('#like').click(function(){
-       
-      $.ajax({
-               
-               type: "POST",
-               url: "{% url 'like' %}",
-               data: {'slug': '{{feed_detail.slug}}' , 'csrfmiddlewaretoken': '{{ csrf_token }}'},
-               dataType: "json",
-               success: function(response) {
-                      alert(response.message);
-                      alert('Company likes count is now ' + response.likes_count);
-                },
-                error: function(rs, e) {
-                       alert(rs.responseText);
-                }
-          }); 
-    })
-
-</script>
-           {{feed_detail.files}}
-     {% endblock %}
-     {% block footer %}
+    
+    {% block header %}
+    
+    
+    <a href="{% url 'home' %}" class="mdl-navigation__link">Stream</a>
+         <a href="{% url 'highest_concerned_feeds' %}" class="mdl-navigation__link">Issues</a>
+          <a href="{% url 'authority_highest_feed' %}" class="mdl-navigation__link">Organizations</a>
       {% endblock %}
+      {% block content %}
+<div class="mdl-grid portfolio-max-width portfolio-contact">
+                <div id='detail-card' class="mdl-cell mdl-cell--12-col mdl-card mdl-shadow--4dp">
+                    
+                    <!--<div class="mdl-card__media">
+                        <img class="article-image" src=" images/contact-image.jpg" border="0" alt="">
+                    </div>!-->
+                    <div class="mdl-card__supporting-text">
+                       <h5><b>{{feed_detail.full_name_of_poster|title}}</b> | 
+    {% if feed_detail.resolved == True %}  
+           <SPAN id="resolved">RESOLVED </SPAN> 
+            {% else %}
+           <SPAN id="unresolved">UNRESOLVED</SPAN>
+            {% endif %}</h5><br/>
+            <span id='experienced'>{{feed_detail.total_experienced}} people experienced this too</span> , <span class="time">{{feed_detail.pub_date|naturaltime|capfirst}}</span> <br/>
+                    
+                           <b> To: </b><a href="{% url 'authority_details' pk=feed_detail.auth.pk slug=feed_detail.auth.slug %}"> {{feed_detail.auth}}</a> <br/>
+                        
+                        
+                        <br/>
+                       
+                        <p>
+                           {{feed_detail.text}}<br/>
+                        </p>
+                       <span id='count'>{{feed_detail.total_concerns}} concern{{feed_detail.total_concerns|pluralize:'s'}}</span>
+                        <hr/>
+                           {% post_to_twitter "{{feed_detail.auth.twitter_handle}} ,{{feed_detail.full_name_of_poster|title}} has an issue against you and he posted it on Prissue.Kindly resolve it" object_or_url "tweet to" %} &nbsp
+                           <a href="{% url 'edit_feed' pk=feed_detail.pk %}">edit</a>
+                       <hr/>
+                       
+                        <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="like">
+                   <input type="checkbox" id="like" name="{{feed_detail.slug}}" class="mdl-checkbox__input" value="Like"  />
+                    <span class="mdl-checkbox__label">I'm concerned</span>
+                     </label><br/>
+                     
+                     <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="exp">
+                   <input type="checkbox" id="exp" name="{{feed_detail.slug}}" class="mdl-checkbox__input" value="exp"  />
+                    <span class="mdl-checkbox__label">I've experienced same from this organization</span>
+                     </label>
+                     
+                     <br/>
+                     <br/>
+                     <br/>
+ <script>
+$('#like').click(function(){
+    //  var el = $(this);
+          $.ajax({
+
+                   type: "POST",
+                   url: "{% url 'like' %}",
+                   data: {'slug': '{{feed_detail.slug}}' , 'csrfmiddlewaretoken': '{{ csrf_token }}'},
+                   dataType: "json", 
+                   success: function(){
+                       $('#count').load("{% url 'feed_detail' slug=feed_detail.slug %} #count");
+                     
+                   }
+              }); 
+        });
+</script>
+<script>      
+$('#exp').click(function(){
+    //  var el = $(this);
+          $.ajax({
+
+                   type: "POST",
+                   url: "{% url 'experience' %}",
+                   data: {'slug': '{{feed_detail.slug}}' , 'csrfmiddlewaretoken': '{{ csrf_token }}'},
+                   dataType: "json", 
+                   success: function(){
+                       $('#experienced').load("{% url 'feed_detail' slug=feed_detail.slug %} #experienced");
+                     
+                   }
+              }); 
+        });
+</script>
+                        
+
+     <b> Files:</b>{{feed_detail.attachment}} attachment{{feed_detail.attachment|pluralize:'s'}}<br/>
+           
+           {% for file in img %}
+           <a rel="gallery-1" class="example-image-link" href="{{MEDIA_URL}}{{file.url}}" data-title="Click anywhere outside the image or the X to the right to close." data-lightbox="roadtrip">
+           <img src="{{MEDIA_URL}}{{file.url}}" class="example-image" width=70 height=70 alt="Image" />
+           </a>
+           {% endfor %}<br/>
+           {% for file in pdf %}
+            <a href ="{{ MEDIA_URL}}{{file.url}}" role="button">Download PDF ({{file.size|filesizeformat}})</a><br/>
+           {% endfor %}
+           {% for file in doc %}
+           <a href ="{{ MEDIA_URL}}{{file.url}}" role="button">Download DOCX({{file.size|filesizeformat}})</a><br/>
+           {% endfor %}
+           {% for file in xls %}
+           <a href ="{{ MEDIA_URL}}{{file.url}}" role="button">Download Excel({{file.size|filesizeformat}})</a><br/><br/>
+           {% endfor %}
+           {% for file in audio %}
+           <a href ="{{ MEDIA_URL}}{{file.url}}" role="button">Download Audio({{file.size|filesizeformat}})</a><br/><br/>
+           {% endfor %}
+                        
+                        {% include "post_comment.html" %}
+                        <div class="mdl-card__title">
+                        <h2 class="mdl-card__title-text">Comments:</h2>
+                    </div>
+          
+   {% if messages %}
+     {% for message in messages %}
+     
+     <script>
+     var 
+  $(window).load(function(){  
+    $.notifier({    
+       "message":"{{message}}",
+			"color1":"white",
+			"color2":"red",
+			"delay":0
+    }); 
+});
+  </script>
+  
+   {% endfor %}
+    {% endif %} 
+{% if request.user in user_exp %}
+ <script>
+ $("#exp").prop("checked", true);
+</script>
+{% else %}
+<script>
+$("#exp").prop("checked", false);
+</script>
+{% endif %} 
+{% if request.user in user_concerned_list %}
+ <script>
+ $("#like").prop("checked", true);
+</script>
+{% else %}
+<script>
+$("#like").prop("checked", false);
+</script>
+{% endif %}   
+  
     
-    
-   
-      
+                        
+                    </div>
+                </div>
+            </div>
+            <link href="{% static 'css/lightbox.min.css' %}" rel="stylesheet"/>
+           <script src="{% static 'js/lightbox.min.js' %}"></script>
+           <script>
+    lightbox.option({
+      'alwaysShowNavOnTouchDevices': true,
+      'wrapAround': true
+    })
+</script>
+            {% endblock %}
+            {% block footer %}
+      {% endblock %}

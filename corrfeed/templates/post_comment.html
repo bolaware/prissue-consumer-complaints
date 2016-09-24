@@ -1,0 +1,16 @@
+ 
+ 
+<form role="form"  action="{% url 'post_comment' pk=feed_detail.pk %}" method="post">
+{% csrf_token %}
+    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+    
+    
+    {{form.text}}
+    <label class="mdl-textfield__label" for="{{form.text.id_for_label}}" >Comment on feed...</label>
+    </div>
+    {% if user.is_authenticated %}
+   <br/> <button class="mdl-button mdl-js-button  mdl-js-ripple-effect mdl-button--raised mdl-button--colored">Comment</button>
+    {% else %}
+    <br/> <button class="mdl-button mdl-js-button  mdl-js-ripple-effect mdl-button--raised mdl-button--colored" disabled>Login to Comment</button>
+    {% endif %}
+</form>

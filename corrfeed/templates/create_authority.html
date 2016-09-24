@@ -1,0 +1,66 @@
+
+
+
+
+{%  extends 'layouts/base.html' %}
+{% load account %}
+{% load humanize %}
+{% load socialaccount %}
+{% block title %}
+    Feed-{{block.super}}
+    {% endblock %}
+    {% block header %}
+    
+    <a href="{% url 'home' %}" class="mdl-navigation__link">Stream</a>
+         <a href="{% url 'highest_concerned_feeds' %}" class="mdl-navigation__link">Issues</a>
+          <a href="{% url 'authority_highest_feed' %}" class="mdl-navigation__link">Organizations</a>
+      {% endblock %}
+      {% block content %}
+<div class="mdl-grid portfolio-max-width portfolio-contact">
+                <div class="mdl-cell mdl-cell--12-col mdl-card mdl-shadow--4dp">
+                
+                <div class="mdl-card__supporting-text">
+                <h2 class="mdl-card__title-text">Submit Organization</h2>
+                        <p>
+                            Please provide information pertaining to the organization/company/authority you want to complain about.
+                        </p>
+                        
+                        <form action="#" method='post' >
+                            {% csrf_token %}
+                            <div class="mdl-textfield mdl-js-textfield">
+                                {{form.name}}
+                                <label class="mdl-textfield__label" for="Name">Name* </label>
+                                <!-- <span class="mdl-textfield__error">Letters and spaces only</span> -->
+                            </div>
+                            <div class="mdl-select mdl-js-select mdl-select--floating-label">
+                            <label class="mdl-select__label" for="{{form.auth.id_for_label}}">Category*</label><br/>
+                            {{form.category}}
+                            </div><br/>
+                             
+                             <div class="mdl-select mdl-js-select mdl-select--floating-label">
+                            <label class="mdl-select__label" for="{{form.auth.id_for_label}}">Country*</label><br/>
+                            {{form.country}}
+                            </div>
+                            
+                            <div class="mdl-textfield mdl-js-textfield">
+                                {{form.description}}
+                                <label class="mdl-textfield__label" for="note">Short Info on the organization...*</label>
+                            </div>
+                            <div class="mdl-textfield mdl-js-textfield">
+                                {{form.twitter_handle}}
+                                <label class="mdl-textfield__label" for="Name">Twitter Handle(if they have one)</label>
+                                
+                            </div>
+                            <p>
+                                <button class="mdl-button mdl-js-button  mdl-js-ripple-effect mdl-button--raised mdl-button--colored">Submit</button>
+                            </p>
+                        </form>
+                    </div>
+                    
+                    
+                </div>
+            </div>
+           
+            {% endblock %}
+            {% block footer %}
+      {% endblock %}

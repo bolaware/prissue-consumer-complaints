@@ -1,0 +1,107 @@
+
+
+
+
+{%  extends 'layouts/base.html' %}
+{% load account %}
+{% load humanize %}
+{% load socialaccount %}
+{% block title %}
+    Feed-{{block.super}}
+    {% endblock %}
+    {% block header %}
+    
+    <a href="{% url 'home' %}" class="mdl-navigation__link">Stream</a>
+         <a href="{% url 'highest_concerned_feeds' %}" class="mdl-navigation__link is-active">Issues</a>
+          <a href="{% url 'authority_highest_feed' %}" class="mdl-navigation__link">Organizations</a>
+      {% endblock %}
+      {% block content %}
+<div class="mdl-grid portfolio-max-width portfolio-contact">
+                <div class="mdl-cell mdl-cell--12-col mdl-card mdl-shadow--4dp">
+                
+                <div class="mdl-card__supporting-text">
+                <h2 class="mdl-card__title-text"><b>Create Profile</b></h2>
+                        <p>
+                            Fields marked * are compulsory.
+                        </p>
+                        
+                        <form action="." method="post" class="user_form">
+{% csrf_token %}
+    <table>
+    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+      {{ form.first_name }}
+    <label class="mdl-textfield__label" for="first_name">First Name*</label>
+  </div>
+  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+      {{ form.last_name }}
+      <label class="mdl-textfield__label" for="last_name">Last Name*</label>
+  </div>
+      {% for form in profile_formset %}
+      <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+      {{ form.bio }}
+      <label class="mdl-textfield__label" for="text">Short Bio*</label>
+      
+  </div>
+  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+       {{ form.city }}
+     <label class="mdl-textfield__label" for="city">City</label>
+  </div>  
+       <div class="mdl-select mdl-js-select mdl-select--floating-label">
+                            <label class="mdl-select__label" for="{{form.auth.id_for_label}}">Country of Residence:</label><br/>
+                            {{form.country}}
+                            
+                            </div><br/>
+       <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+       {{ form.address }}
+       <label class="mdl-textfield__label" for="address">Address</label>
+  </div>
+  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+       {{ form.phone }}
+    <label class="mdl-textfield__label" for="phone">Phone(in the format +XXXXXX...)</label>
+    <span class="mdl-textfield__error">In the format </span> 
+</div>      
+    {{form.user}}
+    {{form.id}}
+    
+       {% endfor %}
+       {{ profile_formset.management_form }}
+        {% if form.errors %}
+    {% for field in form %}
+    {% for error in field.errors %}
+    <div class="alert alert-error">
+   <span><b> {{error}} </b><span>
+    </div>
+    {% endfor %}
+    {% endfor %}
+    {% endif %}
+       
+      <tr>
+        <th></th>
+        <td><button class="mdl-button mdl-js-button  mdl-js-ripple-effect mdl-button--raised mdl-button--colored">Update</button></td>
+      </tr>
+    </table>
+  </form><br>
+                    </div>
+                    
+                    
+                </div>
+            </div>
+              {% if messages %}
+     {% for message in messages %}
+
+  <script>
+  $(window).load(function(){  
+    $.notifier({    
+       "message":"{{message}}",
+			"color1":"grey",
+			"color2":"white",
+			"delay":0
+    }); 
+});
+  </script>
+   {% endfor %}
+    {% endif %}
+           
+            {% endblock %}
+            {% block footer %}
+      {% endblock %}

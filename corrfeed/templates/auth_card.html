@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+ {% load staticfiles %}  
+{% load humanize %} 
+<html >
+  <head>
+    <meta charset="UTF-8">
+    <title>Prissue {{authority.name}}</title>
+    
+    
+    <link rel="stylesheet" href="{% static 'css/profile-card/reset.css' %}">
+
+    
+        <link rel="stylesheet" href="{% static 'css/profile-card/style.css' %}">
+                
+   
+    
+  </head>
+
+  <body>
+
+    <!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Prissue {{authority.name}}</title>
+	<link rel="stylesheet" href="{% static 'css/profile-card/estilos.css' %}">
+	<link href='http://fonts.googleapis.com/css?family=Quicksand:300,400,700' rel='stylesheet' type='text/css'>
+	<link href='http://fonts.googleapis.com/css?family=Lato:400,300' rel='stylesheet' type='text/css'>
+	<link href="http://netdna.bootstrapcdn.com/font-awesome/3.1.1/css/font-awesome.css" rel="stylesheet">
+</head>
+<body>
+
+	<div class="container">
+		<header>
+			<div class="bio">
+        <img src="{% static 'profile/mtn1.jpg' %}" alt="background" class="bg">
+				<div class="desc">
+					<h3>@carlf</h3>
+					<p>Carl Fredricksen is the protagonist in Up. He also appeared in Dug's Special Mission as a minor character.</p>
+				</div>
+			</div>
+			
+			
+
+
+		</header>
+
+		<div class="content">
+        <h3><b>{{authority.name}}</b></h3>
+        <div class="data">
+				<ul>
+					<li>
+						{{no_of_feed_per_authority}}
+						<span>Issue{{no_of_feed_per_authority|pluralize:'s'}}</span>
+					</li>
+					<li>
+						{{percent_resolved|floatformat:"0"}}%
+						<span>Resolved</span>
+					</li>
+					<li>
+						530
+						<span>Following</span>
+					</li>
+				</ul>
+			</div>
+            <div class="follow"> Follow</div>
+            <br/>
+        <p>{{authority.description}}</p>
+			
+
+			
+		</div>
+
+	</div>
+	
+</body>
+</html>
+    <script src='http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script>
+
+        <script src="{% static 'js/profile-card/index.js' %}"></script>
+
+    
+    
+    
+  </body>
+</html>

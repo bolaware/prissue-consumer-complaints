@@ -1,6 +1,6 @@
 *.pyc
 __pycahe__
-myvenv
+virt4
 db.sqlite3
 /static
 .DS_Store

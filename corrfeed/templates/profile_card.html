@@ -1,0 +1,61 @@
+
+
+
+
+   
+    
+{% load staticfiles %}    
+  <link href='http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
+	<link href="http://netdna.bootstrapcdn.com/font-awesome/3.1.1/css/font-awesome.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'profile/reset.css' %}">
+    <link rel="stylesheet" href="{% static 'profile/style.css' %}"> 
+   
+   <body>
+	<div class="container">
+		<header>
+			<div class="bio">
+        <img src="{% static 'profile/up.jpg' %}" alt="background" class="bg">
+				<div class="desc">
+					<h3>@carlf</h3>
+					<p>Carl Fredricksen is the protagonist in Up. He also appeared in Dug's Special Mission as a minor character.</p>
+				</div>
+			</div>
+			
+			<div class="avatarcontainer">
+				<img src="{% static 'profile/carl.jpg' %}" alt="avatar" class="avatar">
+				<div class="hover">
+						<div class="icon-twitter"></div>
+				</div>
+			</div>
+
+
+		</header>
+
+		<div class="content">
+			<div class="data">
+				<ul>
+					<li>
+						2,934
+						<span>Tweets</span>
+					</li>
+					<li>
+						4/7
+						<span>Resolved</span>
+					</li>
+					<li>
+						530
+						<span>Following</span>
+					</li>
+				</ul>
+			</div>
+
+			<div class="follow"> <div class="icon-twitter"></div> Follow</div>
+		</div>
+
+	</div>
+  </body>
+	
+
+
+    <script src='http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script>
+    <script src="{% static 'profile/index.js' %}"></script>
