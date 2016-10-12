@@ -29,7 +29,7 @@
                             {% csrf_token %}
                             <div class="mdl-textfield mdl-js-textfield">
                                 {{form.name}}
-                                <label class="mdl-textfield__label" for="Name">Name* </label>
+                                <label class="mdl-textfield__label" for="Name">Name(alias in bracket if any)* </label>
                                 <!-- <span class="mdl-textfield__error">Letters and spaces only</span> -->
                             </div>
                             <div class="mdl-select mdl-js-select mdl-select--floating-label">
@@ -51,6 +51,8 @@
                                 <label class="mdl-textfield__label" for="Name">Twitter Handle(if they have one)</label>
                                 
                             </div>
+                            Provide Logo(Should be Square in shape):<br/>
+                            {{form.dp}}<br/><br/>
                             <p>
                                 <button class="mdl-button mdl-js-button  mdl-js-ripple-effect mdl-button--raised mdl-button--colored">Submit</button>
                             </p>

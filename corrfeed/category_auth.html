@@ -1,0 +1,69 @@
+{%  extends 'layouts/base.html' %}
+{% block title %}{{category.name}} Organizations-{{block.super}}{% endblock %}
+{% load humanize %}
+{% block header %}
+    <a href="{% url 'home' %}" class="mdl-navigation__link">Stream</a>
+         <a href="{% url 'highest_concerned_feeds' %}" class="mdl-navigation__link">Issues</a>
+          <a href="{% url 'authority_highest_feed' %}" class="mdl-navigation__link">Organizations</a>
+      {% endblock %}
+    
+    {% block content %}
+       <h3 id='title'>Organizations with highest issues</h3>
+        <div class="pagination">
+    <span class="step-links">
+        {% if auth.has_previous %}
+            <a href="?page={{ auth.previous_page_number }}">previous</a>
+        {% endif %}
+
+        <span class="current">
+            Page {{ auth.number }} of {{ auth.paginator.num_pages }}
+        </span>
+
+        {% if auth.has_next %}
+            <a href="?page={{ auth.next_page_number }}">next</a>
+        {% endif %}
+    </span>
+</div>
+   
+    {% for a in auth %}
+    <section id='post-section' class="section--center mdl-grid mdl-grid--no-spacing mdl-shadow--2dp">
+    
+    <div class="mdl-card mdl-cell mdl-cell--12-col">
+     <div class="mdl-card__supporting-text">
+     
+     <h5>
+        <a href="{% url 'authority_details' pk=a.pk slug=a.pk %}"> {{a.name}}</a></h5><br/>
+         <div id='spacer'>   <p>  {{a.total_feeds}} issue{{a.total_feeds|pluralize:'s'}} attached </p>
+             <p id='text'>{{a.description}} </p> 
+              <span class="time">Category:<a href="{% url 'category_detail' slug=a.category.slug %}">{{a.category}}</a></span><br/></div>
+             </div>
+             
+           
+            </div>
+            
+            
+            </section>
+            
+           {% endfor %}
+           <div class="pagination">
+    <span class="step-links">
+        {% if auth.has_previous %}
+            <a href="?page={{ auth.previous_page_number }}">previous</a>
+        {% endif %}
+
+        <span class="current">
+            Page {{ auth.number }} of {{ auth.paginator.num_pages }}
+        </span>
+
+        {% if auth.has_next %}
+            <a href="?page={{ auth.next_page_number }}">next</a>
+        {% endif %}
+    </span>
+</div>
+      {% endblock %}
+      {% block footer %}
+      {% endblock %}
+  
+
+
+

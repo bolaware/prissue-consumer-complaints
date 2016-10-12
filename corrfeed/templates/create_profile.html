@@ -22,8 +22,13 @@
                 <div class="mdl-card__supporting-text">
                 <h2 class="mdl-card__title-text"><b>Create Profile</b></h2>
                         <p>
-                            Fields marked * are compulsory.
+                            Fields marked * are compulsory.<br/>
+                            Any information supplied will only be used by organizations to get in touch with you
                         </p>
+                        {% for form in profile_formset.forms %}
+                      <span id='error'>   {{form.non_field_errors}}
+                         {{form.errors}}</span>
+                         {% endfor %}
                         
                         <form action="." method="post" class="user_form">
 {% csrf_token %}
@@ -42,6 +47,22 @@
       <label class="mdl-textfield__label" for="text">Short Bio*</label>
       
   </div>
+  <hr id="hr">
+  <span color:"red"> You have to fill at least one of this one of this social media URL</span>
+  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+       {{ form.facebook }}
+    <label class="mdl-textfield__label" for="phone">Your Facebook URL</label>
+    </div>
+    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+       {{ form.twitter }}
+    <label class="mdl-textfield__label" for="phone">Your Twitter URL</label>
+    </div>
+    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+       {{ form.linkedin }}
+    <label class="mdl-textfield__label" for="phone">Your LinkedIn URL</label>
+     </div>
+     <hr id="hr">
+    
   <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
        {{ form.city }}
      <label class="mdl-textfield__label" for="city">City</label>
@@ -51,29 +72,20 @@
                             {{form.country}}
                             
                             </div><br/>
-       <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+      <!-- <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
        {{ form.address }}
        <label class="mdl-textfield__label" for="address">Address</label>
-  </div>
+  </div>-->
   <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
        {{ form.phone }}
     <label class="mdl-textfield__label" for="phone">Phone(in the format +XXXXXX...)</label>
-    <span class="mdl-textfield__error">In the format </span> 
+ 
 </div>      
     {{form.user}}
     {{form.id}}
     
        {% endfor %}
        {{ profile_formset.management_form }}
-        {% if form.errors %}
-    {% for field in form %}
-    {% for error in field.errors %}
-    <div class="alert alert-error">
-   <span><b> {{error}} </b><span>
-    </div>
-    {% endfor %}
-    {% endfor %}
-    {% endif %}
        
       <tr>
         <th></th>

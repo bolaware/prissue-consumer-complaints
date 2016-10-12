@@ -1,5 +1,5 @@
 from django.forms import ModelForm
-from models import Feed,Comments,Authority,Profile
+from models import Feed,Authority,Profile,Country,Category
 from django.contrib.auth.models import User
 from dal import autocomplete
 from django import forms
@@ -19,14 +19,7 @@ class FeedForm(ModelForm):
                       "name":forms.TextInput(attrs={'placeholder':'Name','name':'Name','id':'common_id_for_imputfields','class':'input-class_name'}),
                       "description":forms.TextInput(attrs={'placeholder':'description','name':'description','id':'common_id_for_imputfields','class':'input-class_name'})'''
 
-class CommentsForm(ModelForm):
-    class Meta:
-        model=Comments
-        fields=('text',)
-        widgets={"text":forms.Textarea(attrs={'rows':5,'class':"mdl-textfield__input",'id':'text','required':True,'type':'text'})}
-        #text=forms.CharField(max_length=100,required=False,)
-        
-        #class="mdl-textfield__input" type="text" rows= "3" id="text7"
+
         
 class EditFeedForm(ModelForm):
     class Meta:
@@ -40,22 +33,28 @@ class UserForm(ModelForm):
     class Meta:
         model=User
         fields=('first_name','last_name',)
-        widgets={ "first_name":forms.TextInput(attrs={'class':"mdl-textfield__input",'id':'first_name','type':'text',}),
-                  "last_name":forms.TextInput(attrs={'class':"mdl-textfield__input",'id':'last_name','type':'text',}),}  
+        widgets={ "first_name":forms.TextInput(attrs={'class':"mdl-textfield__input",'required':True,'id':'first_name','type':'text',}),
+                  "last_name":forms.TextInput(attrs={'class':"mdl-textfield__input",'required':True,'id':'last_name','type':'text',}),}  
    
         
-ProfileFormSet = inlineformset_factory(User,Profile,can_delete=False,fields=('bio','city','country','address','phone',),widgets={ "bio":forms.Textarea(attrs={'class':"mdl-textfield__input",'id':'text','required':True,'type':'text',}),
+ProfileFormSet = inlineformset_factory(User,Profile,can_delete=False,fields=('bio','city','country','address','phone','facebook','twitter','linkedin'),widgets={ "bio":forms.Textarea(attrs={'class':"mdl-textfield__input",'id':'text','required':True,'rows':3,'type':'text',}),
            "city":forms.TextInput(attrs={'class':"mdl-textfield__input",'id':'city','type':'text',}),
            "address":forms.Textarea(attrs={'class':"mdl-textfield__input",'id':'address','type':'text',}),
+           "facebook":forms.TextInput(attrs={'class':"mdl-textfield__input",'id':'facebook','type':'text',}),
+           "twitter":forms.TextInput(attrs={'class':"mdl-textfield__input",'id':'twitter','type':'text',}),
+           "linkedin":forms.TextInput(attrs={'class':"mdl-textfield__input",'id':'linkedin','type':'text',}),
            "phone":forms.TextInput(attrs={'class':"mdl-textfield__input",'id':'phone','type':'text',}),} ) 
            
 
 
 class AuthorityForm(ModelForm):
     class Meta:
+        
         model=Authority
-        fields=('name','description','country','category','twitter_handle',)
+        fields=('name','description','country','category','twitter_handle','dp',)
         widgets={"name":forms.TextInput(attrs={'class':"mdl-textfield__input",'id':'Name','required':True, }),
+                 "category":forms.Select(attrs={'required':True, }),
+                 "country":forms.Select(attrs={'required':True, }),
                  "description":forms.Textarea(attrs={'columns':10,'rows':5,'class':"mdl-textfield__input",'id':'note','required':True,'type':'text',}),
                  "twitter_handle":forms.TextInput(attrs={'columns':10,'class':"mdl-textfield__input",'id':'Name', })}
     

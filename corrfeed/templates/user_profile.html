@@ -13,14 +13,27 @@
     {% load staticfiles %} 
 
 <div align='center'>
- <h3 text-align='center'>{{user.first_name}} {{user.last_name}}'s Issues</h3>
-    <p>@{{user.username}}</p></div>
+ 
+   <b><i> @{{user.username}}</i></b><br/>
+    <b>bio:</b> {{user.profile.bio}}<br/>
+    {% if fb %}
+    <a href="{{user.profile.facebook}}"><img class="fb-logo-image" src="{% static 'images/facebook.png' %}"></a>&nbsp
+    {% endif %}
+    {% if twitter %}
+    <a href="{{user.profile.twitter}}"><img class="fb-logo-image" src="{% static 'images/twitter.png' %}"></a>&nbsp
+    {% endif %}
+    {% if linkedin %}
+    <a href="{{user.profile.linkedin}}"><img class="fb-logo-image" src="{% static 'images/linked_in.png' %}"></a>
+    {% endif %}
+    <h5 text-align='center'>{{user.first_name}} {{user.last_name}}'s Issues</h5>
+    </div>
     <!--<p>Category:{{authority.category}}</p>
     <p>Country of operation:{{authority.country}}</p>
     <p>{{no_of_resolved_feed_per_authority}}/{{no_of_feed_per_authority}} Feed{{no_of_feed_per_authority|pluralize:'s'}} resolved</p>-->
 
-{% for feed in feeds %}
-         <section id='post-section' class="section--center mdl-grid mdl-grid--no-spacing mdl-shadow--2dp">
+ {% for feed in feedz %}
+     
+    <section id='post-section' class="section--center mdl-grid mdl-grid--no-spacing mdl-shadow--2dp">
     
     <div class="mdl-card mdl-cell mdl-cell--12-col">
      <div class="mdl-card__supporting-text">
@@ -34,18 +47,18 @@
             {% endif %}</h5><br/>
             <p> To:<a href="{% url 'authority_details' pk=feed.auth.pk slug=feed.auth.slug %}">{{feed.auth}} </a></p>
              <p id='text'>{{feed.text}} <a href="{% url 'feed_detail' slug=feed.slug %}">Full details</a></p>
-             <span class="time">{{feed.pub_date|naturaltime|capfirst}}</span><br/>
+             <span class="time">{{feed.pub_date|naturaltime|capfirst}} - {{feed.total_experienced}} people experienced this too
+             
+             </span><br/>
              </div>
            <div class="mdl-card__actions">
-            {{feed.total_concerns}} concern{{feed.total_concerns|pluralize:'s'}} &nbsp {{feed.no_of_comments}} comment{{feed.no_of_comments|pluralize:'s'}} &nbsp {{feed.attachment}} attachment{{feed.attachment|pluralize:'s'}}  <br/>
+            {{feed.total_concerns}} concern{{feed.total_concerns|pluralize:'s'}} &nbsp {{feed.attachment}} attachment{{feed.attachment|pluralize:'s'}}  <br/>
            </div>
             </div>
             
-            <ul class="mdl-menu mdl-js-menu mdl-menu--bottom-right" for="{{feed.pk}}">
-              <li class="mdl-menu__item">Twitter</li>
-              
-            </ul>
+            
             </section>
+            
            {% endfor %}
            <div class="pagination">
     <span class="step-links">

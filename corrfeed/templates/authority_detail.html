@@ -10,15 +10,55 @@
           
       {% endblock %}
     {% block content %}
-    {% load staticfiles %}  
-    <iframe src="{% url 'auth_card' pk=authority.pk slug=authority.slug %}" height='440' style="border:none;"></iframe>
+    {% load staticfiles %} 
+{% load humanize %}     
+    
+    <div class='auth_title' >
+   <div class="auth-image">
+   {% if p %}
+   <img class="auth-image" width='100' height='100' style="vertical-align:middle" src="{% static 'images/no_image.jpg' %}"> 
+   {% else %}
+   <img class="auth-image" width='100' height='100' style="vertical-align:middle" src="{{MEDIA_URL}}{{authority.dp.url}}"> 
+   {% endif %}
+   </div>
+   <div class="auth-info">
+    <h3 style="color:black">{{authority.name}}</h3>
+   <p><div class="material-icons" style="bottom:100px">assignment</div><span id='desc'>&nbsp{{authority.description}}</span></p>
+    <p><div class="material-icons" style="bottom:100px">business</div>&nbsp{{authority.category}}</p>
+    <p><div class="material-icons" style="bottom:100px">location_on</div>&nbsp{{authority.country}}</p>
+    <table border="0" width="70%" cellspacing="10">
+<center>
+<tr>
+<td align='center'><span style="text-align:center" class="num_feeds">{{no_of_feed_per_authority}}</span></td>
+<td align='center'><span style="text-align:center" class="percent_resolved">{{percent_resolved|floatformat:"0"}}%</span></td>
 
-  <!--  <h3>{{authority.name}}</h3>
-    <p>Bio:{{authority.description}}</p>
-    <p>Category:{{authority.category}}</p>
-    <p>Country of operation:{{authority.country}}</p>
-    <p>{{no_of_resolved_feed_per_authority}}/{{no_of_feed_per_authority}} Feed{{no_of_feed_per_authority|pluralize:'s'}} resolved</p>   -->
-    {% include "organisation_stats.html" %}
+<td align='center'><span style="text-align:center" id="num_fllwrs">{{no_of_fllwrs}}</span></td>
+</tr>
+<tr>
+<td align='center'>Issue{{no_of_feed_per_authority|pluralize:'s'}}</td>
+<td align='center'>Resolved</td>
+<td align='center'>Following</td>
+</tr>
+</center>
+</table>
+ {% if user.is_authenticated %}
+      <a id='follow-auth' class="mdl-button mdl-js-button  mdl-js-ripple-effect mdl-button--raised mdl-button--colored">
+         
+         {% if fl %}
+        Unfollow
+       {% else %}
+      Follow
+       {% endif %}
+         </a>
+         {% else %}
+         <a href="{% url 'account_signup' %}" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--raised mdl-button--colored">
+         Follow
+         </a>
+         {% endif %}
+         <br/>
+ <!--   <p><span class="percent_issue">{{no_of_resolved_feed_per_authority}}/{{no_of_feed_per_authority}}</span> Issue{{no_of_feed_per_authority|pluralize:'s'}} resolved</p>--></div></div>   
+  <button id="toggle-stats" style='float:right' class="mdl-button mdl-button--primary mdl-js-button" onclick="toggler('org-statistics');">Hide/Show stats</button>
+ {% include "organisation_stats.html" %}<br/>
     <div align='center'>
     <h4 text-align='center'>Issues to {{authority.name}} </h4></div>
     <div class="pagination">
@@ -49,20 +89,24 @@
             {% else %}
            <SPAN id="unresolved">UNRESOLVED</SPAN> 
             {% endif %}</h5><br/>
-            <p> To:<a href="{% url 'authority_details' pk=feed.auth.pk slug=feed.auth.slug %}">{{feed.auth}} </a></p>
+            <p> <b>To:</b><a href="{% url 'authority_details' pk=feed.auth.pk slug=feed.auth.slug %}">{{feed.auth}} </a></p>
              <p id='text'>{{feed.text}} <a href="{% url 'feed_detail' slug=feed.slug %}">Full details</a></p>
-             <span class="time">{{feed.pub_date|naturaltime|capfirst}}</span><br/>
+             <span class="time">{{feed.pub_date|naturaltime|capfirst}} - {{feed.total_experienced}} people experienced this too
+             
+             </span><br/>
              </div>
            <div class="mdl-card__actions">
-            {{feed.total_concerns}} concern{{feed.total_concerns|pluralize:'s'}} &nbsp {{feed.no_of_comments}} comment{{feed.no_of_comments|pluralize:'s'}} &nbsp {{feed.attachment}} attachment{{feed.attachment|pluralize:'s'}}  <br/>
+            {{feed.total_concerns}} concern{{feed.total_concerns|pluralize:'s'}} &nbsp {{feed.attachment}} attachment{{feed.attachment|pluralize:'s'}}  <br/>
            </div>
             </div>
             
-            <ul class="mdl-menu mdl-js-menu mdl-menu--bottom-right" for="{{feed.pk}}">
-              <li class="mdl-menu__item">Twitter</li>
-              
-            </ul>
+            
             </section>
+          
+            {% empty %}
+            <div align='center'>
+           <h3><b> There is no issues in this category.Do you have one?Post <a href="{% url 'home' %}">here</a></b></h3>
+            </div>
            {% endfor %}
            <div class="pagination">
     <span class="step-links">
@@ -83,4 +127,26 @@
 
       {% endblock %}
       {% block footer %}
+      <script>
+$('#follow-auth').click(function(){
+    //  var el = $(this);
+          $.ajax({
+
+                   type: "POST",
+                   url: "{% url 'follow_org' %}",
+                   data: {'pk': '{{authority.pk}}' , 'csrfmiddlewaretoken': '{{ csrf_token }}'},
+                   dataType: "json",
+                   success: function(){
+                       $('#follow-auth').load("{% url 'authority_details' pk=authority.pk slug=authority.slug %} #follow-auth");
+                       $('#num_fllwrs').load("{% url 'authority_details' pk=authority.pk slug=authority.slug %} #num_fllwrs");
+                       }
+                    
+              }); 
+        });
+</script>
+<script>
+$("#toggle-stats").click(function(){
+    $("#container").toggle();
+});
+</script>
       {% endblock %}

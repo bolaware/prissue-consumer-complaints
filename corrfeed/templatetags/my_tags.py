@@ -15,3 +15,25 @@ def only_hours(value):
     """
     #replace returns a new object instead of modifying in place
     return value.replace(minute=0, second=0, microsecond=0)
+    
+    
+@register.simple_tag
+def number_of_saved(request):
+    u=request.user.saved.all().count()
+    return u
+    
+@register.simple_tag
+def number_of_fllwrs(request):
+    try:
+        u=request.user.profile.following_orgs.all().count()
+    except:
+        u=0
+    return u
+    
+@register.simple_tag
+def number_of_fllw_cat(request):
+    try:
+        u=request.user.profile.following_cats.all().count()
+    except:
+        u=0
+    return u

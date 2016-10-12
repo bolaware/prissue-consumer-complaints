@@ -12,38 +12,27 @@ import os
 class Country(models.Model):
     name=models.CharField(max_length=30)
     
+    class Meta:
+        ordering=["name"]
+        
     def __str__(self):
         return self.name
-    
-class Profile(models.Model):
-    user=models.OneToOneField(User,on_delete=models.CASCADE,primary_key=True,editable=True)
-    bio=models.TextField(max_length=300,blank=False)
-    slug=models.SlugField(unique=True,editable=False)
-    city=models.CharField(max_length=15,blank=True)
-    country=models.ForeignKey(Country,null=True,blank=True)
-    address=models.TextField(blank=True)
-    '''phone_regex = RegexValidator(regex=r'^\+?1?\d{9,15}$', message="Phone number must be entered in the format: '+999999999'. Up to 15 digits allowed.")
-    phone = models.CharField(validators=[phone_regex], blank=True, max_length=16) # validators should be a list'''
-    phone=PhoneNumberField(blank=True)
-    
-    @property    
-    def full_name_of_user(self):
-        return '%s %s'%(self.user.first_name,self.user.last_name)
-            
-    def save(self,*args,**kwargs):
-       # a=Profile.objects.get(user=self.user)
-        self.slug=slugify(self.user.username)
-      #  a.save()
-        super(Profile,self).save(*args,**kwargs)
-    
-    def __str__(self):
-        return self.bio
+
+
         
 class Category(models.Model):
     name=models.CharField(max_length=50)
+    slug=models.SlugField(blank=True)
     
+    class Meta:
+        ordering=["name"]
+        
+    def save(self,*args,**kwargs):
+        self.slug=slugify(unicode(self.name))
+        super(Category,self).save(*args,**kwargs)
     def __str__(self):
         return self.name
+    
 
 
 '''def dp_filename(self,filename):
@@ -56,7 +45,8 @@ def dp_path(instance,filename):
     if not os.path.exists(upload_dir):
         os.makedirs(upload_dir)
     return os.path.join(upload_dir,filename)        
-
+        
+        
 class Authority(models.Model):
     name=models.CharField(max_length=100)
     description=models.TextField()
@@ -64,7 +54,7 @@ class Authority(models.Model):
     category=models.ForeignKey(Category,null=True,blank=True)
     slug=models.SlugField(editable=False)
     twitter_handle=models.CharField(max_length=30,blank=True,null=True)
-    competitors=models.ManyToManyField("self",related_name="competitors",null=True,blank=True)
+    '''competitors=models.ManyToManyField("self",related_name="competitors",blank=True)'''
     no_of_feeds=models.PositiveIntegerField(default=0)
     resolved=models.PositiveIntegerField(default=0)
     unresolved=models.PositiveIntegerField(default=0)
@@ -72,11 +62,12 @@ class Authority(models.Model):
     dp = models.ImageField(blank=True,upload_to=dp_path)
     
     def save(self,*args,**kwargs):
-        self.slug=slugify(unicode(self.name[:50]))
-        n=1
-        while Authority.objects.filter(slug=self.slug).exists():
-            self.slug='%s-%d'%(self.slug,n)
-            n+=1
+        if bool(self.slug)==False:
+            self.slug=slugify(unicode(self.name[:50]))
+            n=1
+            while Authority.objects.filter(slug=self.slug).exists():
+                self.slug='%s-%d'%(self.slug,n)
+                n+=1
         if bool(self.twitter_handle)==True:
             a=list(self.twitter_handle)
             if a[0] != '@':
@@ -87,7 +78,7 @@ class Authority(models.Model):
         
        
         
-        
+      
         
     @property
     def total_feeds(self):
@@ -132,7 +123,7 @@ def auto_delete_dp_on_change(sender, instance, **kwargs):
 
 
      
-@receiver(post_save, sender = Authority)
+'''@receiver(post_save, sender = Authority)
 def update_m2m_relationships(sender, **kwargs):
     if kwargs['created']: #only fire when creating new objects
         competitors_to_add = Authority.objects.filter(
@@ -155,9 +146,41 @@ def update_m2m_relationships(sender, **kwargs):
                 kwargs['instance'].competitors.remove(a)
         for a in competitors_to_add:
             if a not in current_competitors:
-                kwargs['instance'].competitors.add(a)            
+                kwargs['instance'].competitors.add(a)  '''          
         
+
+class Profile(models.Model):
+    user=models.OneToOneField(User,on_delete=models.CASCADE,primary_key=True,editable=True)
+    bio=models.TextField(max_length=300,blank=False)
+    slug=models.SlugField(unique=True,editable=False)
+    city=models.CharField(max_length=15,blank=True)
+    country=models.ForeignKey(Country,null=True,blank=True)
+    address=models.TextField(blank=True)
+    '''phone_regex = RegexValidator(regex=r'^\+?1?\d{9,15}$', message="Phone number must be entered in the format: '+999999999'. Up to 15 digits allowed.")
+    phone = models.CharField(validators=[phone_regex], blank=True, max_length=16) # validators should be a list'''
+    phone=PhoneNumberField(blank=True)
+    facebook=models.URLField(blank=True)
+    twitter=models.URLField(blank=True)
+    linkedin=models.URLField(blank=True)
+    following_cats=models.ManyToManyField(Category,related_name="following_cats",blank=True)
+    following_orgs=models.ManyToManyField(Authority,related_name="following_orgs",blank=True)
+    
+    @property    
+    def full_name_of_user(self):
+        return '%s %s'%(self.user.first_name,self.user.last_name)
         
+    
+            
+    def save(self,*args,**kwargs):
+       # a=Profile.objects.get(user=self.user)
+        self.slug=slugify(self.user.username)
+      #  a.save()
+        super(Profile,self).save(*args,**kwargs)
+    
+    def __str__(self):
+        return self.bio
+
+from django.utils.encoding import smart_unicode           
 class Feed(models.Model):
     user=models.ForeignKey(User,on_delete=models.CASCADE,related_name='feeds')
     text=models.TextField(blank=False,max_length=5000)
@@ -171,14 +194,14 @@ class Feed(models.Model):
     files = models.FileField(upload_to="files/%Y/%m/%d",validators=[validate_file_extension])
     files2= models.FileField(upload_to="files/%Y/%m/%d",validators=[validate_file_extension],blank=True)
     files3= models.FileField(upload_to="files/%Y/%m/%d",validators=[validate_file_extension],blank=True)
+    category_of_auth=models.ForeignKey(Category,null=True,blank=True)
+    archive=models.ManyToManyField(User,related_name="saved",blank=True)
+    
     
     def get_absolute_url(self):
         return '/feeds/%s'%self.slug
     
-    @property
-    def no_of_comments(self):
-        a=Feed.objects.get(pk=self.pk)
-        return a.comments_set.all().count()    
+       
 
     
     @property
@@ -200,6 +223,8 @@ class Feed(models.Model):
     @property    
     def full_name_of_poster(self):
         return '%s %s'%(self.user.first_name,self.user.last_name)
+    
+    
         
     def publish(self):
         self.pub_date=timezone.now()
@@ -207,17 +232,18 @@ class Feed(models.Model):
     
     def save(self,*args,**kwargs):
        # a=Profile.objects.get(user=self.user)
-        self.slug=slugify(unicode(self.text[:50]))
-        n=1
-        while Feed.objects.filter(slug=self.slug).exists():
-            self.slug='%s-%d'%(self.slug,n)
-            n+=1
-        
+        if bool(self.slug)==False:
+            self.slug=slugify(unicode(self.text[:50]))
+            n=1
+            while Feed.objects.filter(slug=self.slug).exists():
+                self.slug='%s-%d'%(self.slug,n)
+                n+=1
+        self.category_of_auth=self.auth.category
         super(Feed,self).save(*args,**kwargs)
         
-        
-    def __str__(self):
-        return self.text
+     
+    def __unicode__(self):
+        return smart_unicode(self.text)
 
      
 @receiver(post_save, sender = Feed)
@@ -289,7 +315,7 @@ def auto_delete_file_on_change(sender, instance, **kwargs):
         if os.path.isfile(old_file.path):
             os.remove(old_file.path)'''
 
-class Comments(models.Model):
+'''class Comments(models.Model):
     text=models.TextField(blank=False,max_length=150)
     user=models.ForeignKey(User,on_delete=models.CASCADE)
     feed=models.ForeignKey(Feed,blank=True)      
@@ -304,7 +330,7 @@ class Comments(models.Model):
         return '%s %s'%(self.user.first_name,self.user.last_name)
         
     def __str__(self):
-        return self.text
+        return self.text'''
 
         
 

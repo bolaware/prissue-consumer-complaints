@@ -4,18 +4,19 @@ from corrfeed.models import Feed,Authority,Category
 from django.utils import timezone
 from django.db.models import Count
 from django.shortcuts import render,get_object_or_404,render_to_response
-from forms import FeedForm,CommentsForm
+from forms import FeedForm
 from django.contrib.auth.models import User
 from django.template.defaultfilters import slugify
 from  django.template import RequestContext
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-
+from django.contrib.auth.decorators import login_required
 
 
 def home(request):
     concern='Concern'
     feeds=Feed.objects.filter(pub_date__lte=timezone.now()).order_by('-pub_date')
     
+       
         
     paginator = Paginator(feeds,5) # Show 25 contacts per page
     page = request.GET.get('page')
@@ -29,7 +30,8 @@ def home(request):
         feedz = paginator.page(paginator.num_pages)
     return render_to_response('index.html', {"feeds":feeds,"feedz": feedz,'form':FeedForm(),'feed_detail':feed_detail,},context_instance=RequestContext(request))
     
-   # return render(request , 'index.html' ,{'feeds':feeds,'form':FeedForm(),'feed_detail':feed_detail,})
+def about(request):
+    return render(request,'about.html')
     
 def authority_highest_feed(request):
     auth_with_highest_feeds=Authority.objects.annotate(num_feeds=Count('feed')).order_by('-num_feeds')
@@ -48,7 +50,7 @@ def authority_highest_feed(request):
 
 def highest_concerned_feeds(request):
     feeds=Feed.objects.annotate(Count('user_concerns')).order_by('-user_concerns__count')
-    paginator = Paginator(feeds,5) # Show 25 contacts per page
+    paginator = Paginator(feeds,10) # Show 25 contacts per page
     page = request.GET.get('page')
     try:
         feedz = paginator.page(page)
@@ -60,23 +62,45 @@ def highest_concerned_feeds(request):
         feedz = paginator.page(paginator.num_pages)
     return render(request , 'concerned_feeds.html' ,{'feedz':feedz})
     
-def auth_card(request,pk,slug):
+'''def auth_card(request,pk,slug):
     authority=get_object_or_404(Authority,pk=pk)
     no_of_feed_per_authority=authority.feed_set.all().count()
     no_of_resolved_feed_per_authority=authority.feed_set.filter(resolved=True).count()
-    percent_resolved=(float(no_of_resolved_feed_per_authority) / no_of_feed_per_authority)*100
-    print 'Number of feed= %d'%(no_of_feed_per_authority)
-    print 'Resolved=%d'%(no_of_resolved_feed_per_authority)
-    print 'percent_resoleved=%d'%(percent_resolved)
-    return render(request, 'auth_card.html' , {'authority':authority,'no_of_feed_per_authority':no_of_feed_per_authority,'percent_resolved':percent_resolved})
+    if no_of_resolved_feed_per_authority==0:
+        percent_resolved=0
+    else:
+        percent_resolved=(float(no_of_resolved_feed_per_authority) / no_of_feed_per_authority)*100
+    
+    return render(request, 'auth_card.html' , {'authority':authority,'no_of_feed_per_authority':no_of_feed_per_authority,'percent_resolved':percent_resolved})'''
     
 def authority_details(request,pk,slug):
+    user=request.user
     authority=get_object_or_404(Authority,pk=pk)
     feeds=authority.feed_set.all().order_by('-pub_date')
     no_of_feed_per_authority=authority.feed_set.all().count()
     no_of_resolved_feed_per_authority=authority.feed_set.filter(resolved=True).count()
-    #authority.pub_date=timezone.now()
-    authority.save()
+    no_of_fllwrs=authority.following_orgs.all().count()
+    p=False
+    if bool(authority.dp)==False:
+        p=True
+    if no_of_resolved_feed_per_authority==0:
+        percent_resolved=0
+    else:
+        percent_resolved=(float(no_of_resolved_feed_per_authority) / no_of_feed_per_authority)*100
+    fl=False
+    
+    if user.is_authenticated():
+        try:
+            if bool(request.user.profile)==False:
+                messages.success(request,'ERROR,Please update your profile first')
+                return redirect('create-profile',username=user.username)
+        except:
+            pass
+        profile=user.profile
+        if profile.following_orgs.filter(id=authority.id).exists():
+            fl=True
+            
+    
     paginator = Paginator(feeds,5) # Show 25 contacts per page
     page = request.GET.get('page')
     try:
@@ -119,7 +143,7 @@ def authority_details(request,pk,slug):
                 'title': {
                    'text': "Customer Issues"}}})
     return render(request, 'authority_detail.html' ,{'cht':cht,'authority':authority,'feedz':feedz,'no_of_feed_per_authority':no_of_feed_per_authority,
-    'no_of_resolved_feed_per_authority':no_of_resolved_feed_per_authority,})
+    'percent_resolved':percent_resolved,'no_of_fllwrs':no_of_fllwrs,'p':p,'fl':fl})
     
 
 def login_redir(request):
@@ -134,7 +158,8 @@ from django.contrib.auth.models import User
 from .forms import ProfileFormSet, UserForm,AuthorityForm,EditFeedForm
 from .models import Profile
 from django.http import Http404
-    
+
+@login_required 
 def add_profile(request,username):
     userman=User.objects.get(username=username)
     if userman != request.user:
@@ -151,15 +176,18 @@ def add_profile(request,username):
             if profile_formset.is_valid():
                 user.save()
                 profile_formset.save()
-                messages.success(request,'Upadated profile successfully')
+                messages.success(request,'Updated profile successfully.')
                 #return HttpResponseRedirect(reverse('user_profile_submitted'))
                 return redirect('home')
+            else:
+                form_errors = profile_formset.errors
+                return render(request,'create_profile.html',{"form_errors":form_errors,"form": form,"profile_formset": profile_formset,})
     else:
         form = form_class(instance=userman)
         profile_formset = ProfileFormSet(instance=userman)
     return render(request,'create_profile.html',{"form": form,"profile_formset": profile_formset,})
 
-    
+@login_required 
 def submit_authority(request):
     categories=Category.objects.all()
     form_class=AuthorityForm
@@ -190,9 +218,11 @@ def edit_authority(request,pk):
     
     
 
-    
+@login_required   
 def edit_feed(request,pk):
     feed=get_object_or_404(Feed,pk=pk)
+    if feed.user != request.user:
+        raise Http404
     form_class=EditFeedForm
     if request.method=='POST':
         form=form_class(request.POST,request.FILES,instance=feed)
@@ -246,6 +276,7 @@ def search(request):
         
  
 from django.contrib import messages
+@login_required
 def post_feed(request):
     user=request.user
     if bool(user.first_name) and bool(user.first_name) ==True:
@@ -287,12 +318,11 @@ def post_feed(request):
 import os
 def feed_detail(request,slug):
     feed_detail=get_object_or_404(Feed,slug=slug)
-    comment_of_feed_count=feed_detail.comments_set.all().count()
-    comment_of_feed=feed_detail.comments_set.all().order_by('-pub_date')
     user_exp=feed_detail.users_experienced.all()
     user_concerned_list=feed_detail.user_concerns.all()
-    for s in user_exp:
-        print s
+    f=False
+    if request.user.saved.filter(id=feed_detail.id).exists():
+        f=True
     
     img=[]
     pdf=[]
@@ -314,7 +344,7 @@ def feed_detail(request,slug):
             xls.append(x)
         elif ext in ['.3gpp','.mp3']:
             audio.append(x)
-    return render(request,'feed_detail.html' ,{'user_exp':user_exp,'audio':audio,'img':img,'pdf':pdf,'doc':doc,'xls':xls,'form':CommentsForm(),'feed_detail':feed_detail,'comment_of_feed':comment_of_feed,'comment_of_feed_count':comment_of_feed_count,'user_concerned_list':user_concerned_list})
+    return render(request,'feed_detail.html' ,{'f':f,'user_exp':user_exp,'audio':audio,'img':img,'pdf':pdf,'doc':doc,'xls':xls,'feed_detail':feed_detail,'user_concerned_list':user_concerned_list})
    
 from django.http import HttpResponse
 try:
@@ -349,6 +379,68 @@ def like(request):
     ctx = {'likes_count': feed.total_concerns, 'message': message}
     # use mimetype instead of content_type if django < 5
     return HttpResponse(json.dumps(ctx), content_type='application/json') 
+
+@login_required 
+@require_POST    
+def follow_cat(request):
+    try:
+        if bool(request.user.profile)==False:
+            messages.success(request,'ERROR,Update your profile before following!')
+            return redirect('create-profile',username=user.username)
+    except:
+        pass
+    if request.method == 'POST':
+        print "--------------"
+        profile = request.user.profile
+        pk = request.POST.get('pk', None)
+        category = get_object_or_404(Category,pk=pk)
+
+        if profile.following_cats.filter(id=category.id).exists():
+            # user has already liked this company
+            # remove like/user
+            profile.following_cats.remove(category)
+            '''feed.user_concerns.remove(user)'''
+            message = 'You unfollowed this category'
+        else:
+            # add a new like for a company
+            profile.following_cats.add(category)
+            ''''feed.user_concerns.add(user)'''
+            message = 'You followed this category'
+
+    ctx = {'name': category.name,'message': message,}
+    return HttpResponse(json.dumps(ctx), content_type='application/json') 
+    
+
+@login_required 
+@require_POST    
+def follow_org(request):
+    try:
+        if bool(request.user.profile)==False:
+            messages.success(request,'ERROR,Update your profile before following!')
+            return redirect('create-profile',username=user.username)
+    except:
+        pass
+    if request.method == 'POST':
+        print "--------------"
+        profile = request.user.profile
+        pk = request.POST.get('pk', None)
+        orgs = get_object_or_404(Authority,pk=pk)
+
+        if profile.following_orgs.filter(id=orgs.id).exists():
+            # user has already liked this company
+            # remove like/user
+            profile.following_orgs.remove(orgs)
+            '''feed.user_concerns.remove(user)'''
+            message = 'You unfollowed this organization'
+        else:
+            # add a new like for a company
+            profile.following_orgs.add(orgs)
+            ''''feed.user_concerns.add(user)'''
+            message = 'You followed this organization'
+
+    ctx = {'orgs': orgs.name,'message': message,}
+    return HttpResponse(json.dumps(ctx), content_type='application/json') 
+    
  
 @login_required 
 @require_POST
@@ -370,7 +462,43 @@ def experience(request):
     # use mimetype instead of content_type if django < 5
     return HttpResponse(json.dumps(ctx), content_type='application/json') 
 
-@login_required
+    
+
+'''@login_required 
+@require_POST
+def save(request):
+    if request.method == 'POST':
+        user = request.user
+        slug = request.POST.get('slug', None)
+        feed = get_object_or_404(Feed, slug=slug)
+
+        if feed.archive.filter(id=user.id).exists():
+            feed.archive.remove(user)
+        else:
+            feed.archive.add(user)
+
+    ctx = {'likes_count': feed.total_experienced,}
+    return HttpResponse(json.dumps(ctx), content_type='application/json') '''
+
+@login_required   
+def save(request,pk):
+    feed=get_object_or_404(Feed,pk=pk)
+    slug=feed.slug
+    user=request.user
+    if feed.archive.filter(id=user.id).exists():
+        feed.archive.remove(user)
+        messages.success(request,'You unsaved this post')
+        print '--------------------'
+    else:
+        feed.archive.add(user)
+        messages.success(request,'Added to your archive')
+        print '--------------------'
+    print '******************'
+    return redirect('feed_detail',slug=slug)      
+    
+    
+    
+'''@login_required
 def post_comment(request,pk):
     form_class = CommentsForm
     feed_detail=get_object_or_404(Feed,pk=pk)
@@ -388,7 +516,7 @@ def post_comment(request,pk):
            
     else:
         form = form_class()
-        return render(request, 'feeed_detail.html', {'form': form,})     
+        return render(request, 'feeed_detail.html', {'form': form,})     '''
  
 
 
@@ -447,4 +575,145 @@ def chart(request,pk):
 def user_profile(request,username):
     user=get_object_or_404(User,username=username)    
     feeds=user.feeds.all()
-    return render(request, 'user_profile.html' ,{'user':user,'feeds':feeds})
+    fb=False
+    twitter=False
+    linkedin=False
+    try:
+        if bool(user.profile.facebook)==True:
+            fb=True
+        if bool(user.profile.twitter)==True:
+            twitter=True
+        if bool(user.profile.linkedin)==True:
+            linkedin=True
+    except:
+        pass
+        
+    paginator = Paginator(feeds,10) # Show 25 contacts per page
+    page = request.GET.get('page')
+    try:
+        feedz = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        feedz = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        feedz = paginator.page(paginator.num_pages)
+        
+    return render(request, 'user_profile.html' ,{'fb':fb,'twitter':twitter,'linkedin':linkedin,'user':user,'feedz':feedz})
+    
+def category(request):
+    if not request.user.is_authenticated():
+        categories=Category.objects.all()
+        return render(request,'category.html',{'categories':categories,})
+                
+    try:
+        if bool(request.user.profile)==False:
+            messages.success(request,'ERROR,Please update your profile first')
+            return redirect('create-profile',username=user.username)
+    except:
+        pass
+    categories=Category.objects.all()
+    profile=request.user.profile
+    fl=[]
+    for category in categories:
+        if profile.following_cats.filter(id=category.id).exists():
+            fl.append(category)
+    print fl
+    
+    return render(request,'category.html',{'categories':categories,'fl':fl}) 
+
+def category_detail(request,slug):
+    category=get_object_or_404(Category,slug=slug)
+    a=Authority.objects.filter(category=category).count()
+    fl=False
+    if request.user.is_authenticated():
+        try:
+            if bool(request.user.profile)==False:
+                messages.success(request,'ERROR,Please update your profile first')
+                return redirect('create-profile',username=user.username)
+        except:
+            pass
+        profile=request.user.profile
+        if profile.following_cats.filter(id=category.id).exists():
+            fl=True
+    feeds=Feed.objects.filter(category_of_auth=category).order_by('-pub_date')
+    paginator = Paginator(feeds,10) # Show 25 contacts per page
+    page = request.GET.get('page')
+    try:
+        feedz = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        feedz = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        feedz = paginator.page(paginator.num_pages)
+    
+    return render(request,'category_detail.html',{'feeds':feeds,'a':a,'category':category,'feedz':feedz,'fl':fl})
+    
+    
+def category_auth(request,slug):
+    category=get_object_or_404(Category,slug=slug)
+    authz=Authority.objects.filter(category=category)
+    a=Authority.objects.filter(category=category).count()
+    fl=False
+    if request.user.is_authenticated():
+        try:
+            if bool(request.user.profile)==False:
+                messages.success(request,'ERROR,Please update your profile first')
+                return redirect('create-profile',username=user.username)
+        except:
+            pass
+        profile=request.user.profile
+        if profile.following_cats.filter(id=category.id).exists():
+            fl=True
+    
+    paginator = Paginator(authz,10) # Show 25 contacts per page
+    page = request.GET.get('page')
+    try:
+        auth= paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        auth = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        auth = paginator.page(paginator.num_pages)
+    return render(request,'category_auth.html',{'a':a,'fl':fl,'category':category,'auth':auth})
+    
+def following(request,username):
+    user=get_object_or_404(User,username=username)
+    try:
+        profile=user.profile
+    except:
+        messages.success(request,'ERROR,Please update your profile first')
+        return redirect('create-profile',username=user.username)
+    '''following_cats=profile.following_cats.all()   '''
+    following_cats=Category.objects.all()
+    following_orgs=profile.following_orgs.order_by('name') 
+    fl=[]
+    for category in following_cats:
+        if profile.following_cats.filter(id=category.id).exists():
+            fl.append(category)
+    print fl    
+    return render(request,'following.html',{'fl':fl,'following_orgs':following_orgs,'following_cats':following_cats})
+    
+@login_required   
+def archive(request):
+    feeds=request.user.saved.all().order_by('-pub_date')
+    paginator = Paginator(feeds,10) # Show 25 contacts per page
+    page = request.GET.get('page')
+    try:
+        feedz = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        feedz = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        feedz = paginator.page(paginator.num_pages)
+    return render(request , 'archive.html' ,{'feedz':feedz})
+
+import random    
+def random_ten(request):
+    num_feeds=Feed.objects.all().count()
+    rand_feeds=random.sample(range(num_feeds),10)
+    feeds=Feed.objects.filter(id__in=rand_feeds)
+    return render(request,'random_ten.html',{'feeds':feeds}) 

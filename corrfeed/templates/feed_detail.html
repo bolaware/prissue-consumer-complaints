@@ -42,8 +42,14 @@
                         </p>
                        <span id='count'>{{feed_detail.total_concerns}} concern{{feed_detail.total_concerns|pluralize:'s'}}</span>
                         <hr/>
-                           {% post_to_twitter "{{feed_detail.auth.twitter_handle}} ,{{feed_detail.full_name_of_poster|title}} has an issue against you and he posted it on Prissue.Kindly resolve it" object_or_url "tweet to" %} &nbsp
-                           <a href="{% url 'edit_feed' pk=feed_detail.pk %}">edit</a>
+                           {% post_to_twitter "{{feed_detail.auth.twitter_handle}} ,{{feed_detail.full_name_of_poster|title}} has an issue against you and he posted it on Prissue.Kindly resolve it" object_or_url "tweet-to" %} &nbsp
+                           <a href="{% url 'edit_feed' pk=feed_detail.pk %}">edit</a>&nbsp
+                           <a href="{% url 'archive' pk=feed_detail.pk %}" >
+                           {% if f %}
+                           unsave
+                           {% else %}
+                          save
+                           {% endif %}</a>
                        <hr/>
                        
                         <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="like">
@@ -91,12 +97,13 @@ $('#exp').click(function(){
               }); 
         });
 </script>
+
                         
 
-     <b> Files:</b>{{feed_detail.attachment}} attachment{{feed_detail.attachment|pluralize:'s'}}<br/>
+     <b> Files:</b>{{feed_detail.attachment}} attachment{{feed_detail.attachment|pluralize:'s'}}(Tap on image to enlarge)<br/>
            
            {% for file in img %}
-           <a rel="gallery-1" class="example-image-link" href="{{MEDIA_URL}}{{file.url}}" data-title="Click anywhere outside the image or the X to the right to close." data-lightbox="roadtrip">
+           <a rel="gallery-1" class="example-image-link" href="{{MEDIA_URL}}{{file.url}}" data-title="Click anywhere outside the image to close." data-lightbox="roadtrip">
            <img src="{{MEDIA_URL}}{{file.url}}" class="example-image" width=70 height=70 alt="Image" />
            </a>
            {% endfor %}<br/>
@@ -112,29 +119,25 @@ $('#exp').click(function(){
            {% for file in audio %}
            <a href ="{{ MEDIA_URL}}{{file.url}}" role="button">Download Audio({{file.size|filesizeformat}})</a><br/><br/>
            {% endfor %}
-                        
-                        {% include "post_comment.html" %}
-                        <div class="mdl-card__title">
-                        <h2 class="mdl-card__title-text">Comments:</h2>
-                    </div>
+           <br/>
+           <br/>
+                       
           
-   {% if messages %}
+{% if messages %}
      {% for message in messages %}
-     
-     <script>
-     var 
+
+  <script>
   $(window).load(function(){  
     $.notifier({    
        "message":"{{message}}",
-			"color1":"white",
-			"color2":"red",
+			"color1":"grey",
+			"color2":"white",
 			"delay":0
     }); 
 });
   </script>
-  
    {% endfor %}
-    {% endif %} 
+    {% endif %}
 {% if request.user in user_exp %}
  <script>
  $("#exp").prop("checked", true);

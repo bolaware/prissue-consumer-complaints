@@ -31,9 +31,7 @@
     <div class="mdl-card mdl-cell mdl-cell--12-col">
      <div class="mdl-card__supporting-text">
      
-     <h5><button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon" style='float:right' id="{{feed.pk}}">
-              <i class="material-icons">share</i>
-            </button>
+     <h5>
         {{feed.full_name_of_poster|title}} | 
             {% if feed.resolved == True %}  
          <SPAN id="resolved">RESOLVED </SPAN> 
@@ -42,17 +40,16 @@
             {% endif %}</h5><br/>
             <p> To:<a href="{% url 'authority_details' pk=feed.auth.pk slug=feed.auth.slug %}">{{feed.auth}} </a></p>
              <p id='text'>{{feed.text}} <a href="{% url 'feed_detail' slug=feed.slug %}">Full details</a></p>
-             <span class="time">{{feed.pub_date|naturaltime|capfirst}}</span><br/>
+             <span class="time">{{feed.pub_date|naturaltime|capfirst}} - {{feed.total_experienced}} people experienced this too
+             
+             </span><br/>
              </div>
            <div class="mdl-card__actions">
-            {{feed.total_concerns}} concern{{feed.total_concerns|pluralize:'s'}} &nbsp {{feed.no_of_comments}} comment{{feed.no_of_comments|pluralize:'s'}} &nbsp {{feed.attachment}} attachment{{feed.attachment|pluralize:'s'}}  <br/>
+            {{feed.total_concerns}} concern{{feed.total_concerns|pluralize:'s'}} &nbsp {{feed.attachment}} attachment{{feed.attachment|pluralize:'s'}}  <br/>
            </div>
             </div>
             
-            <ul class="mdl-menu mdl-js-menu mdl-menu--bottom-right" for="{{feed.pk}}">
-              <li class="mdl-menu__item">Twitter</li>
-              
-            </ul>
+            
             </section>
            {% endfor %}
            <div class="pagination">

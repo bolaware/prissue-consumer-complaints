@@ -1,0 +1,112 @@
+
+{%  extends 'layouts/base.html' %}
+{% load staticfiles %}
+{% load account %}
+{% load humanize %}
+{% load social_share %}
+{% load socialaccount %}
+{% load my_tags %}
+{% block title %}
+    Following -{{block.super}}
+    {% endblock %}
+    
+    {% block header %}
+    
+    
+    <a href="{% url 'home' %}" class="mdl-navigation__link">Stream</a>
+         <a href="{% url 'highest_concerned_feeds' %}" class="mdl-navigation__link">Issues</a>
+          <a href="{% url 'authority_highest_feed' %}" class="mdl-navigation__link">Organizations</a>
+      {% endblock %}
+      {% block content %}
+<div class="mdl-grid portfolio-max-width portfolio-contact">
+
+                <div class="mdl-tabs mdl-js-tabs">
+                <div align='center'>
+<h3 style="text-color:center;margin-bottom:10px;margin-top:5px;color:black">Following</h3></div>
+            <div class="mdl-tabs__tab-bar">
+               <a href="#tab1-panel" class="mdl-tabs__tab is-active">Organizations({% number_of_fllwrs  request %})</a>
+               <a href="#tab2-panel" class="mdl-tabs__tab">Categories({% number_of_fllw_cat request %})</a>
+            </div>
+            <div class="mdl-tabs__panel is-active" id="tab1-panel">
+                {% for a in following_orgs %}
+    <section id='post-section' class="section--center mdl-grid mdl-grid--no-spacing mdl-shadow--2dp">
+    
+    <div class="mdl-card mdl-cell mdl-cell--12-col">
+     <div class="mdl-card__supporting-text">
+     
+     <h5>
+        <a href="{% url 'authority_details' pk=a.pk slug=a.slug %}"> {{a.name}}</a></h5><br/>
+         <div id='spacer'>   <p>  {{a.total_feeds}} issue{{a.total_feeds|pluralize:'s'}} attached </p>
+             <p id='text'>{{a.description}} </p> 
+              <span class="time">Category:<a href="{% url 'category_detail' slug=a.category.slug %}">{{a.category}}</a></span><br/></div>
+             </div>
+             
+           
+            </div>
+            
+            
+            </section>
+            
+           {% endfor %}
+            </div>
+            <div class="mdl-tabs__panel" id="tab2-panel">
+                 {% for category in following_cats %}
+  <div class="mdl-card mdl-shadow--2dp demo-card-square">
+    <div id='{{category.slug}}' class="mdl-card__title mdl-card--expand">
+      <h2 class="mdl-card__title-text">{{category.name}}</h2>
+    </div>
+    <div class="mdl-card__supporting-text">
+      Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenan convallis.
+    </div>
+    <div class="mdl-card__actions mdl-card--border">
+       {% if user.is_authenticated %}
+      <a id='{{category.pk}}' class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">
+         
+         {% if category in fl %}
+       <span style="color:red" > Unfollow </span>
+       {% else %}
+      Follow
+       {% endif %}
+         </a>
+         {% else %}
+         <a href="{% url 'account_signup' %}" class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">
+         Follow
+         </a>
+         {% endif %}
+       
+        <a href="{% url 'category_detail' slug=category.slug %}"class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">
+          View
+        </a>
+    </div>
+  </div>
+  <script>
+$('#{{category.pk}}').click(function(){
+    //  var el = $(this);
+          $.ajax({
+
+                   type: "POST",
+                   url: "{% url 'follow_cat' %}",
+                   data: {'pk': '{{category.pk}}' , 'csrfmiddlewaretoken': '{{ csrf_token }}'},
+                   dataType: "json", 
+                   success: function(){
+                       $('#{{category.pk}}').load("{% url 'category' %} #{{category.pk}}");
+                     
+                   }
+              }); 
+        });
+</script>
+  {% endfor %}
+            </div>
+         </div>
+              <!--   <div id='detail-card' class="mdl-cell mdl-cell--12-col mdl-card mdl-shadow--4dp">
+                  <div class="mdl-card__supporting-text">  
+                   <h3 style="margin-bottom:10px;margin-top:10px;color:black">Following</h3> 
+                     
+                    </div>
+                </div>-->
+            </div>
+           
+
+            {% endblock %}
+            {% block footer %}
+      {% endblock %}

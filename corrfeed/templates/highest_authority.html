@@ -32,10 +32,10 @@
      <div class="mdl-card__supporting-text">
      
      <h5>
-        <a href="{% url 'authority_details' pk=a.pk slug=a.pk %}"> {{a.name}}</a></h5><br/>
+        <a href="{% url 'authority_details' pk=a.pk slug=a.slug %}"> {{a.name}}</a></h5><br/>
          <div id='spacer'>   <p>  {{a.total_feeds}} issue{{a.total_feeds|pluralize:'s'}} attached </p>
              <p id='text'>{{a.description}} </p> 
-              <span class="time">Category:{{a.category}}</span><br/></div>
+              <span class="time">Category:<a href="{% url 'category_detail' slug=a.category.slug %}">{{a.category}}</a></span><br/></div>
              </div>
              
            

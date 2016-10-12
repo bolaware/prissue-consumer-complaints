@@ -36,11 +36,12 @@
    <span id='error'><b> {{error}} </b><span>
     </div>
      {% endfor %}
+     
      {% if user.is_authenticated %}
     
     <br/> <br/> <button class="mdl-button mdl-js-button  mdl-js-ripple-effect mdl-button--raised mdl-button--colored">Post</button>
      {% else %}
-    <br/> <br/> <button class="mdl-button mdl-js-button  mdl-js-ripple-effect mdl-button--raised mdl-button--colored" disabled>Login to Post</button> 
+    <br/> <br/> <button class="mdl-button mdl-js-button  mdl-js-ripple-effect mdl-button--raised mdl-button--colored" disabled>Login to Post</button>
       {% endif %}
     </form>
     {{ form.media }}

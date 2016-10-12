@@ -1,0 +1,72 @@
+{%  extends 'layouts/base.html' %}
+{% block title %}{{request.user.username}}Archive-{{block.super}}
+    {% endblock %}
+{% load humanize %}
+{% block header %}
+    <a href="{% url 'home' %}" class="mdl-navigation__link">Stream</a>
+         <a href="{% url 'highest_concerned_feeds' %}" class="mdl-navigation__link  is-active">Issues</a>
+          <a href="{% url 'authority_highest_feed' %}" class="mdl-navigation__link">Organizations</a>
+      {% endblock %}
+    
+    {% block content %}
+    <h3 style="margin-bottom:10px;margin-top:10px;color:black" id='title'>Saved Posts</h3>
+    <div class="pagination">
+    <span class="step-links">
+        {% if feedz.has_previous %}
+            <a href="?page={{ feedz.previous_page_number }}">previous</a>
+        {% endif %}
+
+        <span class="current">
+            Page {{ feedz.number }} of {{ feedz.paginator.num_pages }}
+        </span>
+
+        {% if feedz.has_next %}
+            <a href="?page={{ feedz.next_page_number }}">next</a>
+        {% endif %}
+    </span>
+</div>
+    {% for feed in feedz %}
+  <section id='post-section' class="section--center mdl-grid mdl-grid--no-spacing mdl-shadow--2dp">
+    
+    <div class="mdl-card mdl-cell mdl-cell--12-col">
+     <div class="mdl-card__supporting-text">
+     
+     <h5>
+        {{feed.full_name_of_poster|title}} | 
+            {% if feed.resolved == True %}  
+         <SPAN id="resolved">RESOLVED </SPAN> 
+            {% else %}
+           <SPAN id="unresolved">UNRESOLVED</SPAN> 
+            {% endif %}</h5><br/>
+            <p> To:<a href="{% url 'authority_details' pk=feed.auth.pk slug=feed.auth.slug %}">{{feed.auth}} </a></p>
+             <p id='text'>{{feed.text}} <a href="{% url 'feed_detail' slug=feed.slug %}">Full details</a></p>
+             <span class="time">{{feed.pub_date|naturaltime|capfirst}} - {{feed.total_experienced}} people experienced this too
+             
+             </span><br/>
+             </div>
+           <div class="mdl-card__actions">
+            {{feed.total_concerns}} concern{{feed.total_concerns|pluralize:'s'}} &nbsp {{feed.attachment}} attachment{{feed.attachment|pluralize:'s'}}  <br/>
+           </div>
+            </div>
+            
+            
+            </section>
+           {% endfor %}
+           <div class="pagination">
+    <span class="step-links">
+        {% if feedz.has_previous %}
+            <a href="?page={{ feedz.previous_page_number }}">previous</a>
+        {% endif %}
+
+        <span class="current">
+            Page {{ feedz.number }} of {{ feedz.paginator.num_pages }}
+        </span>
+
+        {% if feedz.has_next %}
+            <a href="?page={{ feedz.next_page_number }}">next</a>
+        {% endif %}
+    </span>
+</div>
+      {% endblock %}
+      {% block footer %}
+      {% endblock %}

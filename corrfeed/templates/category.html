@@ -1,0 +1,67 @@
+{%  extends 'layouts/base.html' %}
+{% load staticfiles %}
+{% block title %}Category-Prissue-A public log of consumer's complaint{% endblock %}
+{% load humanize %}
+  {% block header %}
+    <a href="{% url 'home' %}" class="mdl-navigation__link">Stream</a>
+    <a href="{% url 'highest_concerned_feeds' %}" class="mdl-navigation__link">Issues</a>
+    <a href="{% url 'authority_highest_feed' %}" class="mdl-navigation__link">Organizations</a>
+  {% endblock %}
+    
+    {% block content %}
+    <h3 id='title'>Categories</h3>
+    
+  <!-- Square card -->
+  {% for category in categories %}
+  <div class="mdl-card mdl-shadow--2dp demo-card-square">
+    <div id='{{category.slug}}' class="mdl-card__title mdl-card--expand">
+      <h2 class="mdl-card__title-text">{{category.name}}</h2>
+    </div>
+    <div class="mdl-card__supporting-text">
+      Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenan convallis.
+    </div>
+    <div class="mdl-card__actions mdl-card--border">
+       {% if user.is_authenticated %}
+      <a id='{{category.pk}}' class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">
+         
+         {% if category in fl %}
+       <span style="color:red" > Unfollow </span>
+       {% else %}
+      Follow
+       {% endif %}
+         </a>
+         {% else %}
+         <a href="{% url 'account_signup' %}" class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">
+         Follow
+         </a>
+         {% endif %}
+       
+        <a href="{% url 'category_detail' slug=category.slug %}"class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">
+          View
+        </a>
+    </div>
+  </div>
+  <script>
+$('#{{category.pk}}').click(function(){
+    //  var el = $(this);
+          $.ajax({
+
+                   type: "POST",
+                   url: "{% url 'follow_cat' %}",
+                   data: {'pk': '{{category.pk}}' , 'csrfmiddlewaretoken': '{{ csrf_token }}'},
+                   dataType: "json", 
+                   success: function(){
+                       $('#{{category.pk}}').load("{% url 'category' %} #{{category.pk}}");
+                     
+                   }
+              }); 
+        });
+</script>
+  {% endfor %}
+  
+    
+    {% endblock %}
+    {% block footer %}
+    
+    {% endblock %}
+    

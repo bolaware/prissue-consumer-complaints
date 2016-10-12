@@ -23,9 +23,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'd-s%xu_9u*i88=pue%xv@cvq*c1nv6d8oksyj_f3p_!^&of#i%'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG =True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS =[]
 
 
 # Application definition
@@ -49,10 +49,18 @@ INSTALLED_APPS = [
     'chartit',
     'django_bitly',
     'django_social_share',
-    
+    'progressbarupload',
 ]
 
+BITLY_LOGIN='bolaji95'
 
+BITLY_API_KEY='R_8dbb32d2cf4742d488fb993babfd9393'
+
+'''FILE_UPLOAD_HANDLERS = (
+    "progressbarupload.uploadhandler.ProgressBarUploadHandler",
+    "django.core.files.uploadhandler.MemoryFileUploadHandler",
+    "django.core.files.uploadhandler.TemporaryFileUploadHandler",
+)'''
 
 
 

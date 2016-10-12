@@ -1,0 +1,110 @@
+{%  extends 'layouts/base.html' %}
+{% block title %}{{category.name}}-{{block.super}}
+    {% endblock %}
+{% load humanize %}
+{% block header %}
+    <a href="{% url 'home' %}" class="mdl-navigation__link">Stream</a>
+         <a href="{% url 'highest_concerned_feeds' %}" class="mdl-navigation__link">Issues</a>
+          <a href="{% url 'authority_highest_feed' %}" class="mdl-navigation__link">Organizations</a>
+      {% endblock %}
+    
+    {% block content %}
+   <h3 style="margin-bottom:10px;margin-top:10px;color:black;" id='title'>{{category.name}}</h3>
+    <div align='center'>
+    ({{a}} <a href="{% url 'category_auth' slug=category.slug %}">organizations</a>,{{feeds|length}} Issues)<br/><br/>
+    {% if user.is_authenticated %}
+      <a id='follow-cat' class="mdl-button mdl-js-button  mdl-js-ripple-effect mdl-button--raised mdl-button--colored">
+         
+         {% if fl %}
+        Unfollow
+       {% else %}
+      Follow
+       {% endif %}
+         </a>
+         {% else %}
+         <a href="{% url 'account_signup' %}" class="mdl-button mdl-js-button  mdl-js-ripple-effect mdl-button--raised mdl-button--colored">
+         Follow
+         </a>
+         {% endif %}
+         </div><br/>
+    <div class="pagination">
+    <span class="step-links">
+        {% if feedz.has_previous %}
+            <a href="?page={{ feedz.previous_page_number }}">previous</a>
+        {% endif %}
+
+        <span class="current">
+            Page {{ feedz.number }} of {{ feedz.paginator.num_pages }}
+        </span>
+
+        {% if feedz.has_next %}
+            <a href="?page={{ feedz.next_page_number }}">next</a>
+        {% endif %}
+    </span>
+</div>
+    {% for feed in feedz %}
+  <section id='post-section' class="section--center mdl-grid mdl-grid--no-spacing mdl-shadow--2dp">
+    
+    <div class="mdl-card mdl-cell mdl-cell--12-col">
+     <div class="mdl-card__supporting-text">
+     
+     <h5>
+        {{feed.full_name_of_poster|title}} | 
+            {% if feed.resolved == True %}  
+         <SPAN id="resolved">RESOLVED </SPAN> 
+            {% else %}
+           <SPAN id="unresolved">UNRESOLVED</SPAN> 
+            {% endif %}</h5><br/>
+            <p> To:<a href="{% url 'authority_details' pk=feed.auth.pk slug=feed.auth.slug %}">{{feed.auth}} </a></p>
+             <p id='text'>{{feed.text}} <a href="{% url 'feed_detail' slug=feed.slug %}">Full details</a></p>
+             <span class="time">{{feed.pub_date|naturaltime|capfirst}} - {{feed.total_experienced}} people experienced this too
+             
+             </span><br/>
+             </div>
+           <div class="mdl-card__actions">
+            {{feed.total_concerns}} concern{{feed.total_concerns|pluralize:'s'}} &nbsp {{feed.attachment}} attachment{{feed.attachment|pluralize:'s'}}  <br/>
+           </div>
+            </div>
+            
+            
+            </section>
+            {% empty %}
+            <div align='center'>
+           <h3><b> There are no issues in this category.Do you have one?Post <a href="{% url 'home' %}">here</a></b></h3>
+            </div>
+           {% endfor %}
+           <div class="pagination">
+    <span class="step-links">
+        {% if feedz.has_previous %}
+            <a href="?page={{ feedz.previous_page_number }}">previous</a>
+        {% endif %}
+
+        <span class="current">
+            Page {{ feedz.number }} of {{ feedz.paginator.num_pages }}
+        </span>
+
+        {% if feedz.has_next %}
+            <a href="?page={{ feedz.next_page_number }}">next</a>
+        {% endif %}
+    </span>
+</div>
+      {% endblock %}
+      {% block footer %}
+       <script>
+$('#follow-cat').click(function(){
+    //  var el = $(this);
+          $.ajax({
+
+                   type: "POST",
+                   url: "{% url 'follow_cat' %}",
+                   data: {'pk': '{{category.pk}}' , 'csrfmiddlewaretoken': '{{ csrf_token }}'},
+                   dataType: "json", 
+                   success: function(){
+                       $('#follow-cat').load("{% url 'category_detail' slug=category.slug %} #follow-cat");
+                     
+                   }
+              }); 
+        });
+</script>
+      {% endblock %}
+     

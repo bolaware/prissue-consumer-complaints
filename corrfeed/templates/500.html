@@ -1,0 +1,39 @@
+
+{%  extends 'layouts/base.html' %}
+{% load staticfiles %}
+{% load account %}
+{% load humanize %}
+{% load social_share %}
+{% load socialaccount %}
+{% block title %}
+    About us -{{block.super}}
+    {% endblock %}
+    
+    {% block header %}
+    
+    
+        <a href="{% url 'home' %}" class="mdl-navigation__link">Stream</a>
+         <a href="{% url 'highest_concerned_feeds' %}" class="mdl-navigation__link">Issues</a>
+          <a href="{% url 'authority_highest_feed' %}" class="mdl-navigation__link">Organizations</a>
+      {% endblock %}
+      {% block content %}
+<div class="mdl-grid portfolio-max-width portfolio-contact">
+                <div id='detail-card' class="mdl-cell mdl-cell--12-col mdl-card mdl-shadow--4dp">
+                  <div class="mdl-card__supporting-text">  
+                    <h1 style="margin-bottom:10px;margin-top:10px;color:black">Sorry there was an error somewhere</h1>
+                       
+                       
+                       
+                       
+
+                       
+                       
+         
+                    </div>
+                </div>
+            </div>
+           
+
+            {% endblock %}
+            {% block footer %}
+      {% endblock %}
