@@ -75,7 +75,7 @@
           <a class="mdl-navigation__link" href="{% url 'random_ten' %}">Random 10</a>
            <hr/>
            <div style="margin-left:0em" align='center'>
-         <span style="color:black;font-size:small"><a href="{% url 'about' %}">About</a> &nbsp&nbsp&nbsp <a href="#">Rules</a> &nbsp&nbsp&nbsp <a href="#">Legals<a/> &nbsp&nbsp&nbsp <a href="#">Account</a></span></div>
+         <span style="color:black;font-size:small"><a href="{% url 'about' %}">About</a> &nbsp&nbsp&nbsp <a href="#">Rules</a> &nbsp&nbsp&nbsp <a href="#">Legals<a/> &nbsp&nbsp&nbsp <a href="{% url 'account_login' %}">Account</a></span></div>
         </nav>
       </div>
       <header class="mdl-layout__header mdl-color--scroll">
@@ -83,10 +83,10 @@
         </div>
         <div class="mdl-layout--fixed-header mdl-layout--fixed-header mdl-layout__header-row">
          <span class="android-title mdl-layout-title">
-            <img class="android-logo-image" src="{% static 'images/android-logo.png' %}">
+           <a href="{% url 'home' %}">   <img class="android-logo-image" src="{% static 'images/android-logo.png' %}"> </a>
           </span>
           <span class="android-mobile-title mdl-layout-title">
-            <img class="android-logo-image" src="{% static 'images/android-logo.png' %}">
+          <a href="{% url 'home' %}">  <img class="android-logo-image" src="{% static 'images/android-logo.png' %}">  </a>
           </span>
         <!-- <span class="mdl-layout-title">
           <h3>prissue.com</h3>

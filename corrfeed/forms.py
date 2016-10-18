@@ -1,5 +1,5 @@
 from django.forms import ModelForm
-from models import Feed,Authority,Profile,Country,Category
+from models import Feed,Authority,Profile,Country,Category,Report
 from django.contrib.auth.models import User
 from dal import autocomplete
 from django import forms
@@ -63,10 +63,14 @@ class EditAuthorityForm(ModelForm):
         model=Authority
         fields=('name','description','country','category','twitter_handle',)
         
-'''class EditAuthDpForm(ModelForm):
+
+        
+class ReportForm(ModelForm):
     class Meta:
-        model=Authority
-        fields=('dp',)'''
+        model=Report
+        fields=('reason','text',)
+        widgets={"reason":forms.Select(attrs={'required':True, }),
+                 "text":forms.Textarea(attrs={'columns':10,'rows':5,'class':"mdl-textfield__input",'id':'text','type':'text',})}
         
 from allauth.account.forms import LoginForm,BaseSignupForm,SignupForm
 

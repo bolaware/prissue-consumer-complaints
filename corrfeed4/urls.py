@@ -28,6 +28,7 @@ urlpatterns = [
     url(r'^$',views.home,name='home'),
     url(r'^about/$',views.about,name='about'),
     url(r'^random-ten/$',views.random_ten,name='random_ten'),
+    url(r'^report/(?P<pk>\d+)/$',views.report,name='report'),
     url(r'^save/(?P<pk>\d+)/$',views.save,name='archive'),
     url(r'^post-feed/$',views.post_feed,name='post_feed'),
     url(r'^(?P<username>\w+)/following/$',views.following,name='following'),

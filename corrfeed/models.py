@@ -61,6 +61,9 @@ class Authority(models.Model):
     pub_date=models.DateTimeField(blank=True,null=True)
     dp = models.ImageField(blank=True,upload_to=dp_path)
     
+    class Meta:
+        ordering=["resolved"]
+        
     def save(self,*args,**kwargs):
         if bool(self.slug)==False:
             self.slug=slugify(unicode(self.name[:50]))
@@ -333,8 +336,31 @@ def auto_delete_file_on_change(sender, instance, **kwargs):
         return self.text'''
 
         
+class Report(models.Model):
+    REASON_CHOICES= (
+        ('Similiar', "It's similiar to another"),
+        ('Abusive', 'The poster made use of abusive language'),
+        ('Files', 'The evidences attched does not correspond/appropriate'),
+        ('Sensitive', 'It contains sensitive information'),
+        ('Rules', 'It contravenes one of the other rules'),
+        ('Other', "Other,Pls specify"),
+    )
+    reason=models.CharField(max_length=10,default='Rules',choices=REASON_CHOICES)
+    reported_user=models.ForeignKey(User,on_delete=models.CASCADE,blank=False,related_name='reported_feeds')
+    reporter=models.ForeignKey(User,on_delete=models.CASCADE,blank=False)
+    text=models.TextField(max_length=150,blank=True)
+    feed=models.ForeignKey(Feed,blank=False) 
 
+    @property
+    def get_feed_id(self):
+        return self.feed.id    
     
+    def save(self,*args,**kwargs):
+        self.reported_user=self.feed.user
+        super(Report,self).save(*args,**kwargs)
+        
+    def __str__(self):
+        return self.text
         
 
 

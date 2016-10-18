@@ -1,6 +1,7 @@
 *.pyc
 __pycahe__
 virt4
+db.sqlite3
 /static
 /media
 .DS_Store

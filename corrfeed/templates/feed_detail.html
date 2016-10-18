@@ -43,7 +43,10 @@
                        <span id='count'>{{feed_detail.total_concerns}} concern{{feed_detail.total_concerns|pluralize:'s'}}</span>
                         <hr/>
                            {% post_to_twitter "{{feed_detail.auth.twitter_handle}} ,{{feed_detail.full_name_of_poster|title}} has an issue against you and he posted it on Prissue.Kindly resolve it" object_or_url "tweet-to" %} &nbsp
+                           {% if g %}
                            <a href="{% url 'edit_feed' pk=feed_detail.pk %}">edit</a>&nbsp
+                           {% endif %}
+                           {% if request.user.is_auntheticated %}
                            <a href="{% url 'archive' pk=feed_detail.pk %}" >
                            {% if f %}
                            unsave
@@ -61,7 +64,7 @@
                    <input type="checkbox" id="exp" name="{{feed_detail.slug}}" class="mdl-checkbox__input" value="exp"  />
                     <span class="mdl-checkbox__label">I've experienced same from this organization</span>
                      </label>
-                     
+                     {% endif %}
                      <br/>
                      <br/>
                      <br/>
@@ -136,6 +139,7 @@ $('#exp').click(function(){
     }); 
 });
   </script>
+  
    {% endfor %}
     {% endif %}
 {% if request.user in user_exp %}

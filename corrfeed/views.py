@@ -18,7 +18,7 @@ def home(request):
     
        
         
-    paginator = Paginator(feeds,5) # Show 25 contacts per page
+    paginator = Paginator(feeds,15) # Show 25 contacts per page
     page = request.GET.get('page')
     try:
         feedz = paginator.page(page)
@@ -50,7 +50,7 @@ def authority_highest_feed(request):
 
 def highest_concerned_feeds(request):
     feeds=Feed.objects.annotate(Count('user_concerns')).order_by('-user_concerns__count')
-    paginator = Paginator(feeds,10) # Show 25 contacts per page
+    paginator = Paginator(feeds,15) # Show 25 contacts per page
     page = request.GET.get('page')
     try:
         feedz = paginator.page(page)
@@ -101,7 +101,7 @@ def authority_details(request,pk,slug):
             fl=True
             
     
-    paginator = Paginator(feeds,5) # Show 25 contacts per page
+    paginator = Paginator(feeds,15) # Show 25 contacts per page
     page = request.GET.get('page')
     try:
         feedz = paginator.page(page)
@@ -202,7 +202,7 @@ def submit_authority(request):
         form=form_class()
     return render(request,'create_authority.html',{'categories':categories,'form':form})
     
-from .forms import EditAuthorityForm
+from .forms import EditAuthorityForm,ReportForm
 def edit_authority(request,pk):
     authority=get_object_or_404(Authority,pk=pk)
     form_class=EditAuthorityForm
@@ -233,20 +233,26 @@ def edit_feed(request,pk):
     else:
         form=form_class(instance=feed)
     return render(request,'edit_feed.html',{'form':form,})
+
     
-
-
-
-'''def search(request):
-    form_class=SearchForm
-    if request.method=='GET':
-        term=request.GET['sum']   
-        authority=Authority.objects.filter(name__icontains='term')
-        feeds=authority.feed_set.all()
-        return render(request,'feed_list.html',{'feeds':feeds})    
+def report(request,pk):
+    feed=get_object_or_404(Feed,pk=pk)
+    form_class=ReportForm
+    if request.method == "POST":
+        form=form_class(request.POST)
+        if form.is_valid():
+            form_report=form.save(commit=False)
+            form_report.feed=feed
+            form_report.reporter=request.user
+            form_report=form.save()
+            messages.success(request,'Thank you for your review')
+            return redirect('home')
     else:
         form=form_class()
-    return render(request,'search.html',{'form':form})'''
+    return render(request,'report.html',{'feed':feed,'form':form})   
+
+
+
     
 def search(request):
   if 'q' in request.GET:
@@ -321,8 +327,12 @@ def feed_detail(request,slug):
     user_exp=feed_detail.users_experienced.all()
     user_concerned_list=feed_detail.user_concerns.all()
     f=False
-    if request.user.saved.filter(id=feed_detail.id).exists():
-        f=True
+    g=False
+    if feed_detail.user == request.user:
+        g=True
+    if request.user.is_authenticated():
+        if request.user.saved.filter(id=feed_detail.id).exists():
+            f=True
     
     img=[]
     pdf=[]
@@ -344,7 +354,7 @@ def feed_detail(request,slug):
             xls.append(x)
         elif ext in ['.3gpp','.mp3']:
             audio.append(x)
-    return render(request,'feed_detail.html' ,{'f':f,'user_exp':user_exp,'audio':audio,'img':img,'pdf':pdf,'doc':doc,'xls':xls,'feed_detail':feed_detail,'user_concerned_list':user_concerned_list})
+    return render(request,'feed_detail.html' ,{'f':f,'g':g,'user_exp':user_exp,'audio':audio,'img':img,'pdf':pdf,'doc':doc,'xls':xls,'feed_detail':feed_detail,'user_concerned_list':user_concerned_list})
    
 from django.http import HttpResponse
 try:
@@ -546,7 +556,9 @@ def chart(request,pk):
             'name',
             'unresolved', 
             'resolved']}
-         ])
+         ],
+         pareto_term = 'resolved' ## Added this code for sorting
+         )
 
     cht = Chart(
         datasource = ds, 
@@ -717,3 +729,4 @@ def random_ten(request):
     rand_feeds=random.sample(range(num_feeds),10)
     feeds=Feed.objects.filter(id__in=rand_feeds)
     return render(request,'random_ten.html',{'feeds':feeds}) 
+    

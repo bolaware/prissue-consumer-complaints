@@ -137,6 +137,19 @@ input[type=text] {
   color: #ff4081;
   float:right;
  }
+#repo{
+    float:right;
+    font-size:x-small;
+    color:Red;
+    padding-left:;
+    padding-top:0.5em;
+    
+}
+
+#report-text{
+    background-color:grey;
+    color:black;
+}
  
 .account-list{
   color:grey;
@@ -497,6 +510,7 @@ table td{
   width:95%;
   margin:auto;
 }
+
 
 
 

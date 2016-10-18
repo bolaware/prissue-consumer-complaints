@@ -96,7 +96,7 @@
              </span><br/>
              </div>
            <div class="mdl-card__actions">
-            {{feed.total_concerns}} concern{{feed.total_concerns|pluralize:'s'}} &nbsp {{feed.attachment}} attachment{{feed.attachment|pluralize:'s'}}  <br/>
+            {{feed.total_concerns}} concern{{feed.total_concerns|pluralize:'s'}} &nbsp {{feed.attachment}} attachment{{feed.attachment|pluralize:'s'}}  <a href="{% url 'report' pk=feed.pk %}"> <span id="repo">Report </span></a><br/>
            </div>
             </div>
             

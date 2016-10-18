@@ -1,7 +1,7 @@
 
 
 from django.contrib import admin
-from .models import Profile,Feed,Authority,Country,Category
+from .models import Profile,Feed,Authority,Country,Category,Report
 
 class ProfileAdmin(admin.ModelAdmin):
     model = Profile
@@ -24,13 +24,13 @@ class AuthorityAdmin(admin.ModelAdmin):
     model = Authority
     list_display=('name','description','total_feeds')
     
-'''class CommentsAdmin(admin.ModelAdmin):
-    model = Comments
-    list_display=('text','user','feed')'''
+class ReportAdmin(admin.ModelAdmin):
+    model = Report
+    list_display=('get_feed_id','reason','text','feed',)
     
 
 
-
+admin.site.register(Report,ReportAdmin)
 admin.site.register(Profile,ProfileAdmin)
 admin.site.register(Feed,FeedAdmin)
 admin.site.register(Authority,AuthorityAdmin)
